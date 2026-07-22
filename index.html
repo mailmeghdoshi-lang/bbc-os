@@ -418,9 +418,11 @@ function getAlerts(uid){
   return a.sort((a,b)=>a.days-b.days);
 }
 function getFUAlerts(){
+  // ADMIN ONLY — team members never see lead follow-up alerts
+  if(!isAdmin()) return [];
   const now=new Date();
   return S.leads.filter(l=>{
-    if(!l.followupAt||['Onboarded','Lost','Rejected'].includes(l.stage))return false;
+    if(!l.followupAt||l.followupDone||['Onboarded','Lost','Rejected'].includes(l.stage))return false;
     const diff=Math.round((new Date(l.followupAt)-now)/60000);
     return diff>=-30&&diff<=1440;
   }).sort((a,b)=>new Date(a.followupAt)-new Date(b.followupAt));
@@ -885,9 +887,14 @@ function renderDashboard(c,a){
   const paid=S.invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+Number(i.amount),0);
   const pend=S.invoices.filter(i=>i.status==='pending').reduce((s,i)=>s+Number(i.amount),0);
   c.innerHTML=`
-  ${fu.length?`<div onclick="navigate('leads')" style="cursor:pointer;margin-bottom:.75rem;padding:10px 14px;background:#F3E8FF;border:0.5px solid #D8B4FE;border-radius:8px">
-    <div style="font-size:11px;font-weight:700;color:#6D28D9;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">📞 Lead Follow-ups Due Today</div>
-    ${fu.map(l=>`<div style="display:flex;align-items:center;gap:10px;margin-top:4px"><span style="font-size:13px;font-weight:500;color:#3B0764">${esc(l.title)}</span><span style="font-size:11px;color:#7c3aed">${fmtDT(l.followupAt)}</span>${l.followupPhone?`<span style="font-size:11px;color:#888">· ${esc(l.followupPhone)}</span>`:''}</div>`).join('')}
+  ${fu.length?`<div onclick="navigate('alerts')" style="cursor:pointer;margin-bottom:.75rem;padding:10px 14px;background:#F3E8FF;border:0.5px solid #D8B4FE;border-radius:8px">
+    <div style="font-size:11px;font-weight:700;color:#6D28D9;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">📞 Lead Follow-ups Due Today (${fu.length})</div>
+    ${fu.map(l=>`<div style="display:flex;align-items:center;gap:10px;margin-top:6px" onclick="event.stopPropagation()">
+      <span style="font-size:13px;font-weight:500;color:#3B0764;flex:1">${esc(l.title)}</span>
+      <span style="font-size:11px;color:#7c3aed">${fmtDT(l.followupAt)}</span>
+      ${l.followupPhone?`<span style="font-size:11px;color:#888">· ${esc(l.followupPhone)}</span>`:''}
+      <button class="btn btn-sm" onclick="markFollowupDone('${l.id}')" style="background:#EAF3DE;color:#3B6D11;border-color:#c3e6a0;font-weight:600;flex-shrink:0">✓ Done</button>
+    </div>`).join('')}
   </div>`:''}
   ${ov.length?`<div onclick="navigate('alerts')" style="cursor:pointer;margin-bottom:.75rem;padding:10px 14px;background:#FCEBEB;border:0.5px solid #F7C1C1;border-radius:8px;display:flex;align-items:center;justify-content:space-between">
     <div style="display:flex;align-items:center;gap:10px"><div style="width:7px;height:7px;border-radius:50%;background:#A32D2D"></div><span style="font-size:12px;color:#791F1F;font-weight:500">${ov.length} item${ov.length!==1?'s':''} overdue</span></div><span style="font-size:11px;color:#A32D2D">View →</span></div>`:''}
@@ -924,9 +931,22 @@ function renderAlerts(c,a){
   const al=getAlerts('OWNER');const ov=al.filter(x=>x.type==='overdue');const soon=al.filter(x=>x.type==='soon');
   const fu=getFUAlerts();
   c.innerHTML=`<div style="max-width:680px">
-    ${!al.length&&!fu.length?`<div class="card" style="text-align:center;padding:2rem;color:#888">✓ All clear</div>`:''}
-    ${fu.length?`<div style="margin-bottom:1.25rem"><div style="font-size:11px;font-weight:700;color:#6D28D9;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Lead Follow-ups (${fu.length})</div>
-      ${fu.map(l=>`<div class="alert-banner alert-followup"><div style="width:7px;height:7px;border-radius:50%;background:#7c3aed;flex-shrink:0;margin-top:4px"></div><div style="flex:1"><div style="font-size:10px;font-weight:600;text-transform:uppercase;color:#6D28D9;margin-bottom:2px">Follow-up · ${esc(l.stage)}</div><div style="font-size:13px;font-weight:500">${esc(l.title)}</div><div style="font-size:11px;color:#6D28D9;margin-top:2px">${fmtDT(l.followupAt)}${l.followupPhone?' · '+esc(l.followupPhone):''}</div>${l.followupNote?`<div style="font-size:11px;color:#555;margin-top:2px">${esc(l.followupNote)}</div>`:''}</div><button class="btn btn-sm" onclick="openViewLead('${l.id}')">Open Lead</button></div>`).join('')}
+    ${!al.length&&!fu.length?`<div class="card" style="text-align:center;padding:2rem;color:#888">✓ All clear — no alerts right now</div>`:''}
+    ${fu.length?`<div style="margin-bottom:1.25rem">
+      <div style="font-size:11px;font-weight:700;color:#6D28D9;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Lead Follow-ups (${fu.length})</div>
+      ${fu.map(l=>`<div class="alert-banner alert-followup">
+        <div style="width:7px;height:7px;border-radius:50%;background:#7c3aed;flex-shrink:0;margin-top:4px"></div>
+        <div style="flex:1">
+          <div style="font-size:10px;font-weight:600;text-transform:uppercase;color:#6D28D9;margin-bottom:2px">Follow-up · ${esc(l.stage)}</div>
+          <div style="font-size:13px;font-weight:500">${esc(l.title)}</div>
+          <div style="font-size:11px;color:#6D28D9;margin-top:2px">${fmtDT(l.followupAt)}${l.followupPhone?' · '+esc(l.followupPhone):''}</div>
+          ${l.followupNote?`<div style="font-size:11px;color:#555;margin-top:2px">${esc(l.followupNote)}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn btn-sm" onclick="markFollowupDone('${l.id}')" style="background:#EAF3DE;color:#3B6D11;border-color:#c3e6a0;font-weight:600">✓ Done</button>
+          <button class="btn btn-sm" onclick="openViewLead('${l.id}')">Open Lead</button>
+        </div>
+      </div>`).join('')}
     </div>`:''}
     ${ov.length?`<div style="margin-bottom:1.25rem"><div style="font-size:11px;font-weight:700;color:#A32D2D;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Overdue (${ov.length})</div>${ov.map(alertCard).join('')}</div>`:''}
     ${soon.length?`<div><div style="font-size:11px;font-weight:700;color:#854F0B;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Due Soon (${soon.length})</div>${soon.map(alertCard).join('')}</div>`:''}
@@ -1392,6 +1412,7 @@ function saveFollowup(id){
   l.followupAt   =dt?new Date(dt).toISOString():'';
   l.followupPhone=document.getElementById('fu-ph').value.trim();
   l.followupNote =document.getElementById('fu-note').value.trim();
+  l.followupDone =false; // reset so new follow-up appears in alerts
   save();log('lead',`Follow-up set for "<span class="activity-tag">${esc(l.title)}</span>" — ${fmtDT(l.followupAt)}`,'📞');closeModal();renderPage();
 }
 
@@ -2009,6 +2030,19 @@ window.saveClient=saveClient;
 window.saveEditClient=saveEditClient;
 window.saveEditMember=saveEditMember;
 window.saveFollowup=saveFollowup;
+
+function markFollowupDone(id){
+  const l=S.leads.find(l=>l.id===id);if(!l)return;
+  l.followupDone=true;  // hides from all alerts
+  save();
+  toast(`Follow-up with ${l.title} marked done ✓`);
+  log('lead',`Follow-up with <span class="activity-tag">${esc(l.title)}</span> marked complete`,'✓');
+  // Re-render current page
+  if(S.page==='alerts'){const c=document.getElementById('content');const a=document.getElementById('topbar-actions');if(c&&a)renderAlerts(c,a);}
+  else renderDashboard(document.getElementById('content'),{innerHTML:''});
+  updateBadges();
+}
+window.markFollowupDone=markFollowupDone;
 window.saveInvoice=saveInvoice;
 window.saveLead=saveLead;
 window.saveMember=saveMember;
