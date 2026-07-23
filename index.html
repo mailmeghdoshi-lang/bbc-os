@@ -225,24 +225,8 @@ const SERVICES = [
   {name:'E-commerce Setup',desc:'Online store setup with catalog, payment, and shipping configuration.',cat:'Website Development',unit:'OTHERS',code:'WEB03',hsn:'998314',gst:18,price:60000},
   {name:'Digital Retainer - Social Media Only',desc:'Social media management, content calendar, reel scripting & direction, community management.',cat:'Retainer Package',unit:'MONTH',code:'RET01',hsn:'998361',gst:18,price:60000},
   {name:'Growth Retainer - Social Media + Performance Marketing',desc:'Everything in Digital Retainer + Meta/Google Ads management, GTM/GA4, lead funnel optimisation. Ad spend billed separately.',cat:'Retainer Package',unit:'MONTH',code:'RET02',hsn:'998361',gst:18,price:110000},
-  {name:'Packaging Design — Master Pack',desc:'Sets the design direction and a master template for usage across the product range. Includes structure, typography, colour system and print-ready artwork.',cat:'Packaging Design',unit:'OTHERS',code:'PKG01',hsn:'998361',gst:18,price:20000},
-  {name:'Packaging Design — Adaptation',desc:'Design adaptation for a product variant (flavour, fragrance, size, etc.) based on an approved master pack template. Per adaptation.',cat:'Packaging Design',unit:'NUMBERS',code:'PKG02',hsn:'998361',gst:18,price:2000},
-  {name:'WhatsApp Business Setup & Third-Party Integration',desc:'Setup and coordination of WhatsApp Business with a third-party platform (e.g. Interakt, Wati, AiSensy). Includes API coordination and initial flow configuration.',cat:'Digital Setup & Integration',unit:'OTHERS',code:'DSI01',hsn:'998314',gst:18,price:4000},
-  {name:'Design / Artwork — Up to A4 (per page/side)',desc:'Artwork or layout design for print or digital — up to A4 size, per page or side. Includes flyers, inserts, brochure pages, shelf cards, etc.',cat:'Design / Artwork',unit:'NUMBERS',code:'ART01',hsn:'998361',gst:18,price:2000},
-  {name:'Design / Artwork — Larger than A4 (per side)',desc:'Artwork or layout design for print or digital — larger than A4, per side. Includes posters, banners, standees, hoardings, etc.',cat:'Design / Artwork',unit:'NUMBERS',code:'ART02',hsn:'998361',gst:18,price:5000},
 ];
-const SVC_CATS = [...new Set(allServices().map(s=>s.cat))];
-
-// allServices() — merges built-in SERVICES with user-added/edited ones from Firebase
-// Custom services with same code as built-in OVERRIDE the built-in (for edits)
-// New custom services (unique codes) are appended
-function allServices(){
-  const custom = S.customServices||[];
-  const customCodes = new Set(custom.map(s=>s.code));
-  const base = allServices().filter(s=>!customCodes.has(s.code)); // built-ins not overridden
-  return [...base, ...custom].sort((a,b)=>a.cat.localeCompare(b.cat)||a.code.localeCompare(b.code));
-}
-function allSvcCats(){ return [...new Set(allServices().map(s=>s.cat))]; }
+const SVC_CATS = [...new Set(SERVICES.map(s=>s.cat))];
 
 const LEAD_STAGES  = ['Prospect','Discussion','Proposal Sent','PI Invoice Sent','Onboarded','Lost','Rejected'];
 const STAGE_COLOR  = {Prospect:'#a855f7',Discussion:'#185FA5','Proposal Sent':'#BA7517','PI Invoice Sent':'#0F766E',Onboarded:'#639922',Lost:'#A32D2D',Rejected:'#888780'};
@@ -305,7 +289,7 @@ function save(){
     invoices:S.invoices.map(i=>({...i,dueDate:i.dueDate instanceof Date?i.dueDate.toISOString():i.dueDate})),
     activity:S.activity,
     calEvents:S.calEvents.map(e=>({...e,date:e.date instanceof Date?e.date.toISOString():e.date})),
-    leads:S.leads, quotations:S.quotations, customServices:S.customServices||[]
+    leads:S.leads, quotations:S.quotations
   };
   fbSet('bbcOS', serial);
 }
@@ -319,7 +303,6 @@ const S={
   adminEmail:OWNER_EMAIL, adminPwdHash:'',
   clients:[], projects:[], tasks:[], team:[],
   invoices:[], activity:[], calEvents:[], leads:[], quotations:[],
-  customServices:[], // user-added or edited services stored in Firebase
   // session (never saved to Firebase)
   page:'dashboard', calYear:TODAY.getFullYear(), calMonth:TODAY.getMonth(),
   taskTab:'list', currentUser:null, expandedTasks:{}, expandedLeads:{}, showArchive:false,
@@ -356,7 +339,6 @@ function startFirebase(){
       S.calEvents     = (d.calEvents ||[]).map(e=>({...e,date:new Date(e.date)}));
       S.leads         = d.leads      || [];
       S.quotations    = d.quotations || [];
-      S.customServices= d.customServices || [];
     }
     rebuildMaps();
     S._ready = true;
@@ -1270,122 +1252,29 @@ async function saveEditMember(id){
 
 // ════════════════════ SERVICES CATALOG ═══════════════════════════
 function renderServices(c,a){
-  a.innerHTML=`<button class="btn btn-primary" onclick="openAddService()">+ Add Service</button>`;
-  const svcs=allServices();
-  const cats=allSvcCats();
   c.innerHTML=`<div style="margin-bottom:1rem;padding:10px 14px;background:#F3E8FF;border:0.5px solid #D8B4FE;border-radius:8px;font-size:12px;color:#6D28D9">
-    <strong>Services Catalog — Admin only.</strong> Add, edit or delete services here. Changes reflect instantly across quotations and leads. Built-in services can be edited — your changes are saved to the database.
+    <strong>Admin only — Services Catalog.</strong> These are your official BBC services with standard rates. Use this as your pricing reference when creating quotations. Prices exclude GST.
   </div>
-  ${cats.map(cat=>{
-    const catSvcs=svcs.filter(s=>s.cat===cat);
+  ${SVC_CATS.map(cat=>{
+    const svcs=SERVICES.filter(s=>s.cat===cat);
     return `<div class="card" style="margin-bottom:1rem;padding:0;overflow:hidden">
-      <div class="cat-header" style="display:flex;align-items:center;justify-content:space-between;padding-right:10px">
-        <span>${cat}</span>
-        <button class="btn btn-sm" onclick="openAddService('${esc(cat)}')" style="font-size:10px">+ Add to category</button>
-      </div>
+      <div class="cat-header">${cat}</div>
       <table class="svc-table"><thead><tr>
-        <th>Code</th><th>Service Name</th><th>Description</th><th>Unit</th>
-        <th style="text-align:right">Rate (excl. GST)</th><th>HSN</th><th>GST</th><th>Type</th><th></th>
+        <th>Code</th><th>Service</th><th>Description</th><th>Unit</th><th style="text-align:right">Standard Rate</th><th>HSN</th><th>GST</th>
       </tr></thead><tbody>
-        ${catSvcs.map(s=>{
-          const isCustom=!!(S.customServices||[]).find(cs=>cs.code===s.code);
-          return `<tr>
-            <td><code style="font-size:10px;background:#f4f3f0;padding:2px 5px;border-radius:4px">${esc(s.code)}</code></td>
-            <td style="font-weight:500;max-width:180px">${esc(s.name)}</td>
-            <td style="color:#888;font-size:11px;max-width:220px">${esc(s.desc)}</td>
-            <td><span class="badge badge-gray">${esc(s.unit)}</span></td>
-            <td style="text-align:right;font-weight:600">${fmtINR(s.price)}</td>
-            <td style="color:#888;font-size:11px">${esc(s.hsn)}</td>
-            <td><span class="badge badge-blue">${s.gst}%</span></td>
-            <td><span class="badge ${isCustom?'badge-purple':'badge-gray'}">${isCustom?'custom':'built-in'}</span></td>
-            <td style="white-space:nowrap;text-align:right">
-              <button class="btn btn-sm" onclick="openEditService('${esc(s.code)}')" style="margin-right:4px">✎</button>
-              ${isCustom?`<button class="btn btn-danger btn-sm" onclick="deleteService('${esc(s.code)}')">✕</button>`:''}
-            </td>
-          </tr>`;
-        }).join('')}
+        ${svcs.map(s=>`<tr>
+          <td><code style="font-size:10px;background:#f4f3f0;padding:2px 5px;border-radius:4px">${s.code}</code></td>
+          <td style="font-weight:500;max-width:200px">${esc(s.name)}</td>
+          <td style="color:#888;font-size:11px;max-width:280px">${esc(s.desc)}</td>
+          <td><span class="badge badge-gray">${s.unit}</span></td>
+          <td style="text-align:right;font-weight:600">${fmtINR(s.price)}</td>
+          <td style="color:#888;font-size:11px">${s.hsn}</td>
+          <td><span class="badge badge-blue">${s.gst}%</span></td>
+        </tr>`).join('')}
       </tbody></table>
     </div>`;
   }).join('')}`;
 }
-
-function openAddService(prefillCat){
-  showModal(`<div class="modal-title">Add New Service</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="form-group"><label class="form-label">Service Name *</label><input class="form-input" id="sv-name" placeholder="e.g. Brand Audit"></div>
-      <div class="form-group"><label class="form-label">Item Code * (must be unique)</label><input class="form-input" id="sv-code" placeholder="e.g. BRD05" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
-      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Description</label><textarea class="form-input" id="sv-desc" placeholder="What's included..." style="min-height:56px"></textarea></div>
-      <div class="form-group"><label class="form-label">Category</label>
-        <input class="form-input" id="sv-cat" value="${esc(prefillCat||'')}" placeholder="e.g. Brand Strategy & Identity" list="sv-cat-opts">
-        <datalist id="sv-cat-opts">${allSvcCats().map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
-      </div>
-      <div class="form-group"><label class="form-label">Unit</label>
-        <select class="form-input" id="sv-unit">${['OTHERS','MONTH','NUMBERS','SETS','SESSION'].map(u=>`<option>${u}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label class="form-label">Rate ₹ (excl. GST) *</label><input class="form-input" id="sv-price" type="number" placeholder="0"></div>
-      <div class="form-group"><label class="form-label">GST %</label>
-        <select class="form-input" id="sv-gst"><option value="18" selected>18%</option><option value="12">12%</option><option value="0">0%</option></select>
-      </div>
-      <div class="form-group"><label class="form-label">HSN Code</label><input class="form-input" id="sv-hsn" value="998361"></div>
-    </div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveNewService()">Add Service</button></div>`);
-}
-function saveNewService(){
-  const name=document.getElementById('sv-name').value.trim();
-  const code=document.getElementById('sv-code').value.trim().toUpperCase();
-  const cat=document.getElementById('sv-cat').value.trim();
-  const price=Number(document.getElementById('sv-price').value)||0;
-  if(!name){alert('Service name is required.');return;}
-  if(!code){alert('Item code is required.');return;}
-  if(!cat){alert('Category is required.');return;}
-  if(!price){alert('Rate is required.');return;}
-  if(allServices().find(s=>s.code===code)){alert(`Code "${code}" is already used. Pick a different code.`);return;}
-  if(!S.customServices)S.customServices=[];
-  S.customServices.push({name,code,cat,desc:document.getElementById('sv-desc').value.trim(),unit:document.getElementById('sv-unit').value,price,gst:Number(document.getElementById('sv-gst').value)||18,hsn:document.getElementById('sv-hsn').value.trim()||'998361'});
-  save();toast(`"${name}" added ✓`);log('client',`Service <span class="activity-tag">${esc(name)}</span> added`,'★');closeModal();renderPage();
-}
-function openEditService(code){
-  const s=allServices().find(s=>s.code===code);if(!s)return;
-  showModal(`<div class="modal-title">Edit Service — <code>${esc(s.code)}</code></div>
-    <div style="background:#FAEEDA;border-radius:7px;padding:8px 10px;font-size:11px;color:#854F0B;margin-bottom:1rem">Editing a built-in service saves your version to the database and overrides the default.</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="form-group"><label class="form-label">Service Name *</label><input class="form-input" id="sv-name" value="${esc(s.name)}"></div>
-      <div class="form-group"><label class="form-label">Item Code</label><input class="form-input" value="${esc(s.code)}" readonly style="background:#f4f3f0;color:#888"></div>
-      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Description</label><textarea class="form-input" id="sv-desc" style="min-height:56px">${esc(s.desc)}</textarea></div>
-      <div class="form-group"><label class="form-label">Category</label>
-        <input class="form-input" id="sv-cat" value="${esc(s.cat)}" list="sv-cat-opts2">
-        <datalist id="sv-cat-opts2">${allSvcCats().map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
-      </div>
-      <div class="form-group"><label class="form-label">Unit</label>
-        <select class="form-input" id="sv-unit">${['OTHERS','MONTH','NUMBERS','SETS','SESSION'].map(u=>`<option ${s.unit===u?'selected':''}>${u}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label class="form-label">Rate ₹ (excl. GST) *</label><input class="form-input" id="sv-price" type="number" value="${s.price}"></div>
-      <div class="form-group"><label class="form-label">GST %</label>
-        <select class="form-input" id="sv-gst">${[18,12,0].map(g=>`<option value="${g}" ${s.gst===g?'selected':''}>${g}%</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label class="form-label">HSN Code</label><input class="form-input" id="sv-hsn" value="${esc(s.hsn)}"></div>
-    </div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveEditService('${esc(code)}')">Save Changes</button></div>`);
-}
-function saveEditService(code){
-  const name=document.getElementById('sv-name').value.trim();
-  const cat=document.getElementById('sv-cat').value.trim();
-  const price=Number(document.getElementById('sv-price').value)||0;
-  if(!name||!cat||!price){alert('Name, category and rate are required.');return;}
-  if(!S.customServices)S.customServices=[];
-  S.customServices=S.customServices.filter(s=>s.code!==code);
-  S.customServices.push({name,code,cat,desc:document.getElementById('sv-desc').value.trim(),unit:document.getElementById('sv-unit').value,price,gst:Number(document.getElementById('sv-gst').value)||18,hsn:document.getElementById('sv-hsn').value.trim()||'998361'});
-  save();toast(`"${name}" updated ✓`);log('client',`Service <span class="activity-tag">${esc(name)}</span> updated`,'✎');closeModal();renderPage();
-}
-function deleteService(code){
-  const s=allServices().find(s=>s.code===code);if(!s)return;
-  if(!confirm(`Delete "${s.name}"?\n\nThis cannot be undone.`))return;
-  S.customServices=(S.customServices||[]).filter(cs=>cs.code!==code);
-  save();toast(`Deleted`);renderPage();
-}
-window.openAddService=openAddService;window.saveNewService=saveNewService;
-window.openEditService=openEditService;window.saveEditService=saveEditService;window.deleteService=deleteService;
-
 
 // ════════════════════ LEADS ══════════════════════════════════════
 function renderLeads(c,a){
@@ -1454,7 +1343,7 @@ function deleteLead(id){if(!confirm('Delete this lead?'))return;const i=S.leads.
 function openViewLead(id){S.expandedLeads[id]=true;S.page='leads';renderPage();}
 
 function openAddLead(){
-  const svcOpts=allServices().map(s=>`<option value="${esc(s.name)}">[${s.code}] ${esc(s.name)}</option>`).join('');
+  const svcOpts=SERVICES.map(s=>`<option value="${esc(s.name)}">[${s.code}] ${esc(s.name)}</option>`).join('');
   showModal(`<div class="modal-title">New Lead</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="form-group" style="grid-column:1/-1"><label class="form-label">Lead Name / Title *</label><input class="form-input" id="l-title" placeholder="e.g. Nimisha – Social Media Retainer"></div>
@@ -1477,7 +1366,7 @@ function saveLead(){
 }
 function openEditLead(id){
   const l=S.leads.find(l=>l.id===id);if(!l)return;
-  const svcOpts=allServices().map(s=>`<option value="${esc(s.name)}" ${(l.services||[]).includes(s.name)?'selected':''}>[${s.code}] ${esc(s.name)}</option>`).join('');
+  const svcOpts=SERVICES.map(s=>`<option value="${esc(s.name)}" ${(l.services||[]).includes(s.name)?'selected':''}>[${s.code}] ${esc(s.name)}</option>`).join('');
   const showLost=['Lost','Rejected'].includes(l.stage);
   showModal(`<div class="modal-title">Edit Lead — ${esc(l.title)}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -1557,7 +1446,7 @@ function openCreateQuote(prefill){
   const lo=S.leads.map(l=>`<option value="${l.id}" ${prefill&&prefill.id===l.id?'selected':''}>${esc(l.title)}</option>`).join('');
   // Pre-fill rows from lead services
   const initSvcs=prefill&&prefill.services&&prefill.services.length?prefill.services:[];
-  const initRows=initSvcs.length?initSvcs.map(sn=>{const sv=allServices().find(s=>s.name===sn);return qRow(_qrc++,sn,sv?sv.price:0,0);}).join(''):qRow(_qrc++,'',0,0);
+  const initRows=initSvcs.length?initSvcs.map(sn=>{const sv=SERVICES.find(s=>s.name===sn);return qRow(_qrc++,sn,sv?sv.price:0,0);}).join(''):qRow(_qrc++,'',0,0);
   showModal(`<div class="modal-title">Create Quotation</div>
     <div class="form-group"><label class="form-label">Linked Lead</label><select class="form-input" id="q-lead" onchange="prefillLead()"><option value="">— No lead linked —</option>${lo}</select></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -1593,7 +1482,7 @@ function openCreateQuote(prefill){
 }
 
 function qRow(i,svcName,rate,disc){
-  const opts=allServices().map(s=>`<option value="${esc(s.name)}" data-price="${s.price}" ${s.name===svcName?'selected':''}>${esc(s.name)} (${fmtINR(s.price)})</option>`).join('');
+  const opts=SERVICES.map(s=>`<option value="${esc(s.name)}" data-price="${s.price}" ${s.name===svcName?'selected':''}>${esc(s.name)} (${fmtINR(s.price)})</option>`).join('');
   return `<div class="qi-row" id="qrow-${i}">
     <select class="form-input" id="qsvc-${i}" onchange="onSvcChange(${i})" style="font-size:11px">
       <option value="">— Select service —</option>${opts}
