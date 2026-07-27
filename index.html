@@ -5,44 +5,2807 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Butter Branding OS</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%237c3aed'/><stop offset='100%25' stop-color='%23ec4899'/></linearGradient></defs><rect width='32' height='32' rx='6' fill='url(%23g)'/><text x='5' y='22' font-family='Arial Black' font-size='16' font-weight='900' fill='white' font-style='italic'>B</text></svg>">
+<style>
+/* ================================================================
+   BBC AGENCY OS — styles.css
+   Edit only this file for visual/layout changes
+   ================================================================ */
 
-<!-- STYLES -->
-<link rel="stylesheet" href="styles.css">
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<!-- FIREBASE (load before any scripts) -->
+:root {
+  --purple: #7c3aed;
+  --pink:   #ec4899;
+  --bg:     #F5F4F1;
+  --white:  #fff;
+  --border: rgba(0,0,0,.1);
+  --text:   #1a1a1a;
+  --muted:  #888;
+  --radius: 8px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 13px;
+}
+
+@keyframes pulse   { 0%,100%{ opacity:.25; transform:scale(.7) } 50%{ opacity:1; transform:scale(1) } }
+@keyframes fadein  { from{ opacity:0; transform:translateY(4px) } to{ opacity:1; transform:translateY(0) } }
+
+/* ── APP SHELL ─────────────────────────────────────────────────── */
+.app   { display: flex; height: 100vh; overflow: hidden; }
+.main  { flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-width: 0; }
+.page  { padding: 1.5rem; flex: 1; animation: fadein .18s ease; }
+
+/* ── SIDEBAR ────────────────────────────────────────────────────── */
+.sb {
+  width: 220px; min-width: 220px; background: var(--white);
+  border-right: .5px solid var(--border);
+  display: flex; flex-direction: column; overflow-y: auto;
+}
+.sb-logo { padding: .875rem 1rem; border-bottom: .5px solid var(--border); }
+.sb-logo-name {
+  font-size: 13px; font-weight: 800; font-style: italic;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.sb-logo-sub { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
+.sb-section  { padding: .5rem .5rem 0; }
+.sb-lbl      { font-size: 9px; color: #bbb; text-transform: uppercase; letter-spacing: .08em; padding: .5rem .5rem .25rem; font-weight: 600; }
+.sb-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-radius: var(--radius);
+  cursor: pointer; color: #555; user-select: none;
+  transition: background .1s; margin-bottom: 1px; position: relative;
+}
+.sb-item:hover { background: #f4f3f0; color: var(--text); }
+.sb-item.on    { background: #f0e6ff; color: var(--purple); font-weight: 500; }
+.sb-item svg   { width: 14px; height: 14px; flex-shrink: 0; opacity: .5; }
+.sb-item.on svg{ opacity: 1; }
+.sb-badge   { background: #c0392b; color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 10px; margin-left: auto; font-weight: 700; }
+.sb-badge-p { background: var(--purple); color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 10px; margin-left: auto; font-weight: 700; }
+.sb-foot { margin-top: auto; padding: .75rem .5rem; border-top: .5px solid var(--border); }
+.sb-user { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: var(--radius); cursor: pointer; }
+.sb-user:hover { background: #f4f3f0; }
+
+/* ── TOPBAR ─────────────────────────────────────────────────────── */
+.topbar {
+  background: var(--white); border-bottom: .5px solid var(--border);
+  padding: .875rem 1.5rem; display: flex; align-items: center;
+  justify-content: space-between; position: sticky; top: 0; z-index: 20;
+}
+.topbar-title   { font-size: 15px; font-weight: 600; }
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ── BUTTONS ────────────────────────────────────────────────────── */
+.btn {
+  font-size: 12px; padding: 6px 13px; border-radius: var(--radius);
+  border: .5px solid var(--border); background: var(--white);
+  color: var(--text); cursor: pointer; font-family: inherit;
+  transition: background .1s; white-space: nowrap;
+}
+.btn:hover         { background: #f4f3f0; }
+.btn-primary       { background: var(--text); color: #fff; border-color: var(--text); }
+.btn-primary:hover { background: #333; }
+.btn-purple        { background: linear-gradient(135deg, var(--purple), var(--pink)); color: #fff; border: none; }
+.btn-purple:hover  { opacity: .9; }
+.btn-sm            { font-size: 11px; padding: 4px 9px; }
+.btn-danger        { background: #fef0f0; color: #c0392b; border-color: #fcc; }
+.btn-danger:hover  { background: #fcc; }
+
+/* ── CARDS & LAYOUT ─────────────────────────────────────────────── */
+.card { background: var(--white); border: .5px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; }
+.g2   { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.g3   { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.g4   { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+
+.stat       { background: #f0efe9; border-radius: 10px; padding: 1rem; }
+.stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
+.stat-val   { font-size: 21px; font-weight: 700; }
+.stat-sub   { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+.sh       { display: flex; align-items: center; justify-content: space-between; margin-bottom: .875rem; }
+.sh-title { font-size: 13px; font-weight: 600; }
+
+/* ── BADGES ─────────────────────────────────────────────────────── */
+.badge   { display: inline-flex; align-items: center; font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500; white-space: nowrap; }
+.b-green  { background: #e8f5e9; color: #2e7d32; }
+.b-amber  { background: #fff8e1; color: #f57f17; }
+.b-blue   { background: #e3f2fd; color: #1565c0; }
+.b-gray   { background: #f1efea; color: #555;    }
+.b-red    { background: #fef0f0; color: #c0392b; }
+.b-purple { background: #f3e8ff; color: #6d28d9; }
+.b-teal   { background: #e0f2f1; color: #00695c; }
+.b-pink   { background: #fce4ec; color: #880e4f; }
+
+/* ── AVATARS ────────────────────────────────────────────────────── */
+.av    { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 11px; }
+.av-a  { background: #d8d5f9; color: #3c3489; }
+.av-b  { background: #b2dfdb; color: #004d40; }
+.av-c  { background: #ffe0b2; color: #bf360c; }
+.av-d  { background: #b3e5fc; color: #01579b; }
+.av-e  { background: #f8bbd0; color: #880e4f; }
+
+/* ── TABLES ─────────────────────────────────────────────────────── */
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left; padding: 8px 10px;
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  border-bottom: .5px solid var(--border); white-space: nowrap;
+}
+td {
+  padding: 9px 10px; font-size: 12px;
+  border-bottom: .5px solid rgba(0,0,0,.05); vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: #fafaf9; cursor: pointer; }
+
+/* ── TASK CHECKBOX ──────────────────────────────────────────────── */
+.chk {
+  width: 15px; height: 15px; border-radius: 3px;
+  border: .5px solid rgba(0,0,0,.25); cursor: pointer;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+}
+.chk.done { background: #2e7d32; border-color: #2e7d32; }
+.chk.done::after {
+  content: ''; width: 7px; height: 4px;
+  border-left: 1.5px solid #fff; border-bottom: 1.5px solid #fff;
+  transform: rotate(-45deg) translateY(-1px); display: block;
+}
+
+/* ── PROGRESS BAR ───────────────────────────────────────────────── */
+.pb      { height: 5px; background: rgba(0,0,0,.08); border-radius: 3px; overflow: hidden; }
+.pb-fill { height: 100%; border-radius: 3px; transition: width .4s; }
+
+/* ── PROJECT DOT ────────────────────────────────────────────────── */
+.proj-dot  { border-radius: 50%; width: 9px; height: 9px; flex-shrink: 0; }
+.d-green   { background: #2e7d32; }
+.d-blue    { background: #1565c0; }
+.d-amber   { background: #f57f17; }
+.d-gray    { background: #888;    }
+
+/* ── LIST ITEMS ─────────────────────────────────────────────────── */
+.li           { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: .5px solid rgba(0,0,0,.06); }
+.li:last-child{ border-bottom: none; }
+
+/* ── MODAL ──────────────────────────────────────────────────────── */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.35);
+  z-index: 100; display: flex; align-items: center;
+  justify-content: center; padding: 1rem;
+}
+.modal {
+  background: var(--white); border-radius: 14px;
+  padding: 1.5rem; width: 640px; max-width: 96vw;
+  max-height: 92vh; overflow-y: auto;
+  box-shadow: 0 12px 48px rgba(0,0,0,.2);
+}
+.modal-title  { font-size: 15px; font-weight: 700; margin-bottom: 1.25rem; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.25rem; padding-top: 1rem; border-top: .5px solid var(--border); }
+
+/* ── FORM ───────────────────────────────────────────────────────── */
+.fg { margin-bottom: .875rem; }
+.fl { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; display: block; }
+.fi {
+  width: 100%; font-size: 13px; padding: 8px 10px;
+  border: .5px solid rgba(0,0,0,.2); border-radius: var(--radius);
+  font-family: inherit; color: var(--text); background: var(--white);
+  outline: none; transition: border-color .15s;
+}
+.fi:focus { border-color: var(--purple); }
+textarea.fi { resize: vertical; min-height: 68px; }
+select.fi   { cursor: pointer; }
+.pw-wrap    { position: relative; }
+.pw-eye     { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa; font-size: 14px; user-select: none; opacity: .4; }
+
+/* ── TOGGLE SWITCH ──────────────────────────────────────────────── */
+.toggle     { width: 32px; height: 18px; border-radius: 9px; background: #ddd; position: relative; cursor: pointer; flex-shrink: 0; transition: background .15s; }
+.toggle.on  { background: var(--purple); }
+.toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .15s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.toggle.on::after { left: 16px; }
+
+/* ── ALERTS ─────────────────────────────────────────────────────── */
+.alert-card { border-radius: 9px; padding: 10px 14px; margin-bottom: 8px; display: flex; gap: 10px; border: .5px solid; }
+.al-red     { background: #fef0f0; border-color: #fcc; }
+.al-amber   { background: #fff8e1; border-color: #ffe082; }
+.al-purple  { background: #f3e8ff; border-color: #d1b3ff; }
+
+/* ── LEAD PIPELINE ──────────────────────────────────────────────── */
+.lead-card    { background: var(--white); border: .5px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+.lead-hd      { padding: 12px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.lead-hd:hover{ background: #fafaf9; }
+.lead-body    { padding: 14px; border-top: .5px solid var(--border); }
+.lead-pipe    { display: flex; overflow-x: auto; margin-bottom: 1rem; }
+.lead-stage   { flex: 1; min-width: 80px; text-align: center; padding: 7px 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; border-bottom: 2px solid rgba(0,0,0,.08); color: #aaa; cursor: pointer; white-space: nowrap; }
+.lead-stage.cur  { border-bottom-color: var(--purple); color: var(--purple); }
+.lead-stage.past { border-bottom-color: #2e7d32; color: #2e7d32; }
+
+/* ── QUOTATION ROW ──────────────────────────────────────────────── */
+.qrow    { display: grid; grid-template-columns: 2fr 110px 70px 80px 90px 28px; gap: 6px; margin-bottom: 6px; align-items: center; }
+.qrow-hd { display: grid; grid-template-columns: 2fr 110px 70px 80px 90px 28px; gap: 6px; margin-bottom: 5px; }
+.qrow-hd span { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── SERVICES TABLE ─────────────────────────────────────────────── */
+.cat-hd {
+  padding: 8px 12px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--purple); background: #f8f4ff;
+  border-bottom: .5px solid rgba(0,0,0,.06);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+/* ── CALENDAR ───────────────────────────────────────────────────── */
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+.cal-lbl  { font-size: 10px; font-weight: 600; color: var(--muted); text-align: center; padding: 4px 0; text-transform: uppercase; }
+.cal-cell { min-height: 78px; border-radius: 7px; padding: 5px 6px; background: #f4f3f0; cursor: pointer; }
+.cal-cell:hover  { background: #e8e7e0; }
+.cal-cell.other  { opacity: .3; }
+.cal-cell.today  { background: var(--white); border: 1.5px solid var(--text); }
+.cal-date{ font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+.cal-ev  { font-size: 9px; padding: 2px 5px; border-radius: 3px; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ev-t    { background: #e3f2fd; color: #1565c0; }
+.ev-p    { background: #e8f5e9; color: #2e7d32; }
+.ev-i    { background: #fff8e1; color: #f57f17; }
+.ev-l    { background: #f3e8ff; color: #6d28d9; }
+.ev-c    { background: #ede7f6; color: #4527a0; cursor: pointer; }
+.ev-o    { background: #fef0f0; color: #c0392b; }
+
+/* ── TOAST ──────────────────────────────────────────────────────── */
+.toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--text); color: #fff; font-size: 12px; padding: 9px 16px; border-radius: var(--radius); z-index: 999; opacity: 0; transition: opacity .25s; pointer-events: none; }
+.toast.show { opacity: 1; }
+
+/* ── LOGIN ──────────────────────────────────────────────────────── */
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); }
+.login-box  { background: var(--white); border-radius: 16px; border: .5px solid var(--border); padding: 2.5rem 2rem; width: 400px; max-width: 94vw; box-shadow: 0 4px 24px rgba(0,0,0,.07); }
+
+/* ── MEMBER PORTAL ──────────────────────────────────────────────── */
+.m-task { background: var(--white); border: .5px solid var(--border); border-radius: 10px; padding: .875rem; margin-bottom: 8px; }
+
+/* ── PRINT ──────────────────────────────────────────────────────── */
+@media print {
+  .sb, .topbar, .topbar-actions, .no-print { display: none !important; }
+  .main, .page { padding: 0; overflow: visible; }
+  body { background: var(--white); }
+}
+
+</style>
+</head>
+<body>
+<div id="R"></div>
+<div id="M"></div>
+<div class="toast" id="toast"></div>
+
+<!-- Firebase MUST load first, before any app code -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-<!-- DATA (load before core) -->
-<script src="services-data.js"></script>
-
-<!-- CORE (state, Firebase, helpers — load before modules) -->
-<script src="core.js"></script>
-
-<!-- MODULES — each module is independent, edit one without touching others -->
-<script src="module-auth.js"></script>
-<script src="module-shell.js"></script>
-<script src="module-dashboard.js"></script>
-<script src="module-alerts.js"></script>
-<script src="module-calendar.js"></script>
-<script src="module-activity.js"></script>
-<script src="module-projects.js"></script>
-<script src="module-tasks.js"></script>
-<script src="module-team.js"></script>
-<script src="module-leads.js"></script>
-<script src="module-quotations.js"></script>
-<script src="module-services.js"></script>
-<script src="module-clients-invoices.js"></script>
-<script src="module-member.js"></script>
-
-<!-- BOOT -->
+<!-- App code — runs after Firebase is ready -->
 <script>
-  startFirebase(); // Connects to Firebase, loads data, then calls render()
+// ================================================================
+// BBC AGENCY OS — services-data.js
+// Built-in services catalog
+// To add a permanent service: add it here and redeploy
+// To add/edit from the UI: use the Services Catalog module
+// ================================================================
+
+const BASE_SERVICES = [
+  // ── Brand Strategy & Identity ──────────────────────────────
+  { code:'BRD01', cat:'Brand Strategy & Identity',    name:'Brand Strategy & Positioning',        desc:'Market positioning, target audience mapping, and brand narrative.',                            unit:'OTHERS',  hsn:'998361', gst:18, price:75000  },
+  { code:'BRD02', cat:'Brand Strategy & Identity',    name:'Logo Design',                          desc:'Primary logo + variations (horizontal, icon, monochrome).',                                  unit:'OTHERS',  hsn:'998361', gst:18, price:40000  },
+  { code:'BRD03', cat:'Brand Strategy & Identity',    name:'Brand Identity & Guideline Document',  desc:'Full brand book — colours, typography, usage rules, tone of voice.',                         unit:'OTHERS',  hsn:'998361', gst:18, price:65000  },
+  { code:'BRD04', cat:'Brand Strategy & Identity',    name:'Brand Voice & Messaging Framework',    desc:'Tone of voice guide, key messaging pillars, tagline options.',                               unit:'OTHERS',  hsn:'998361', gst:18, price:35000  },
+  // ── Social Media Management ────────────────────────────────
+  { code:'SMM01', cat:'Social Media Management',      name:'Social Media Management',              desc:'End-to-end handling of social handles, billed outside a retainer.',                          unit:'MONTH',   hsn:'998361', gst:18, price:60000  },
+  { code:'SMM02', cat:'Social Media Management',      name:'Content Calendar Planning',             desc:'Monthly content calendar across platforms with themes and posting schedule.',                 unit:'MONTH',   hsn:'998361', gst:18, price:15000  },
+  { code:'SMM03', cat:'Social Media Management',      name:'Reel Scripting & Direction (Set of 5)', desc:'Scripts + shot direction for a set of 5 reels.',                                             unit:'SETS',    hsn:'998361', gst:18, price:20000  },
+  { code:'SMM04', cat:'Social Media Management',      name:'Instagram Growth & Community Mgmt',    desc:'DMs, comments, engagement, and follower growth activities.',                                  unit:'MONTH',   hsn:'998361', gst:18, price:18000  },
+  { code:'SMM05', cat:'Social Media Management',      name:'Influencer Collaboration Management',  desc:'Sourcing, negotiating, and coordinating influencer partnerships.',                            unit:'MONTH',   hsn:'998361', gst:18, price:25000  },
+  // ── Performance Marketing ──────────────────────────────────
+  { code:'PMK01', cat:'Performance Marketing',        name:'Meta Ads — Setup',                     desc:'Ad account structuring, pixel setup, initial campaign build.',                               unit:'OTHERS',  hsn:'998361', gst:18, price:25000  },
+  { code:'PMK02', cat:'Performance Marketing',        name:'Meta Ads — Monthly Management',        desc:'Ongoing campaign management, optimisation, and reporting.',                                  unit:'MONTH',   hsn:'998361', gst:18, price:35000  },
+  { code:'PMK03', cat:'Performance Marketing',        name:'Google Ads — Setup',                   desc:'Account structuring, conversion tracking, initial campaign build.',                          unit:'OTHERS',  hsn:'998361', gst:18, price:25000  },
+  { code:'PMK04', cat:'Performance Marketing',        name:'Google Ads — Monthly Management',      desc:'Ongoing campaign management, optimisation, and reporting.',                                  unit:'MONTH',   hsn:'998361', gst:18, price:35000  },
+  { code:'PMK05', cat:'Performance Marketing',        name:'GTM & GA4 Setup',                      desc:'Tag Manager and Analytics 4 configuration with goal/event tracking.',                        unit:'OTHERS',  hsn:'998361', gst:18, price:18000  },
+  { code:'PMK06', cat:'Performance Marketing',        name:'Landing Page for Ad Campaigns',        desc:'Single-purpose landing page built for a specific ad campaign.',                              unit:'OTHERS',  hsn:'998361', gst:18, price:30000  },
+  { code:'PMK07', cat:'Performance Marketing',        name:'Lead Funnel Strategy & Setup',         desc:'Funnel mapping, lead magnet, and capture-flow setup.',                                       unit:'OTHERS',  hsn:'998361', gst:18, price:45000  },
+  // ── Content Creation ───────────────────────────────────────
+  { code:'CNT01', cat:'Content Creation',             name:'Static Post Design (Set of 10)',       desc:'10 designed static posts for social media.',                                                 unit:'SETS',    hsn:'998361', gst:18, price:20000  },
+  { code:'CNT02', cat:'Content Creation',             name:'Photography/Videography Direction',    desc:'On-ground creative direction for a single shoot day.',                                       unit:'SESSION', hsn:'998361', gst:18, price:25000  },
+  { code:'CNT03', cat:'Content Creation',             name:'Copywriting (Captions & Ad Copy)',     desc:'Ongoing caption and ad copywriting.',                                                        unit:'MONTH',   hsn:'998361', gst:18, price:15000  },
+  { code:'CNT04', cat:'Content Creation',             name:'Blog / Long-form Content Writing',     desc:'SEO-aware long-form article, per piece.',                                                    unit:'NUMBERS', hsn:'998361', gst:18, price:6000   },
+  // ── Website Development ────────────────────────────────────
+  { code:'WEB01', cat:'Website Development',          name:'Website Design & Development',         desc:'Full website build — design, development, and launch.',                                      unit:'OTHERS',  hsn:'998314', gst:18, price:110000 },
+  { code:'WEB02', cat:'Website Development',          name:'Website Maintenance & Updates',        desc:'Ongoing updates, fixes, and content changes.',                                               unit:'MONTH',   hsn:'998314', gst:18, price:10000  },
+  { code:'WEB03', cat:'Website Development',          name:'E-commerce Setup',                     desc:'Online store setup with catalog, payment, and shipping configuration.',                      unit:'OTHERS',  hsn:'998314', gst:18, price:60000  },
+  // ── Packaging Design ───────────────────────────────────────
+  { code:'PKG01', cat:'Packaging Design',             name:'Packaging Design — Master Pack',       desc:'Sets the design direction and master template for the product range.',                       unit:'OTHERS',  hsn:'998361', gst:18, price:20000  },
+  { code:'PKG02', cat:'Packaging Design',             name:'Packaging Design — Adaptation',        desc:'Adaptation per product variant (flavour, fragrance, size, etc.).',                          unit:'NUMBERS', hsn:'998361', gst:18, price:2000   },
+  // ── Digital Setup & Integration ────────────────────────────
+  { code:'DSI01', cat:'Digital Setup & Integration',  name:'WhatsApp Business Setup & Integration',desc:'WhatsApp Business API coordination and initial flow configuration with third-party platform.',unit:'OTHERS', hsn:'998314', gst:18, price:4000   },
+  // ── Design / Artwork ───────────────────────────────────────
+  { code:'ART01', cat:'Design / Artwork',             name:'Design / Artwork — Up to A4 (per side)',  desc:'Artwork or layout for print/digital up to A4, per page or side.',  unit:'NUMBERS', hsn:'998361', gst:18, price:2000   },
+  { code:'ART02', cat:'Design / Artwork',             name:'Design / Artwork — Larger than A4 (per side)', desc:'Artwork or layout for print/digital larger than A4, per side.', unit:'NUMBERS', hsn:'998361', gst:18, price:5000   },
+  // ── Retainer Packages ──────────────────────────────────────
+  { code:'RET01', cat:'Retainer Package',             name:'Digital Retainer — Social Media Only', desc:'Social media management + content calendar + reel scripting + community management.',        unit:'MONTH',   hsn:'998361', gst:18, price:60000  },
+  { code:'RET02', cat:'Retainer Package',             name:'Growth Retainer — Social + Performance',desc:'Digital Retainer + Meta/Google Ads + GTM/GA4 + lead funnel. Ad spend billed separately.',  unit:'MONTH',   hsn:'998361', gst:18, price:110000 },
+];
+
+
+// ================================================================
+// BBC AGENCY OS — core.js
+// Shared state, Firebase, helpers, constants
+// DO NOT EDIT unless you're changing data structure
+// ================================================================
+
+// ── CONSTANTS ───────────────────────────────────────────────────
+const OWNER_NAME     = 'Megh Doshi';
+const OWNER_EMAIL    = 'megh@butterbranding.co';
+const OWNER_INITIALS = 'MD';
+const AGENCY_NAME    = 'Butter Branding Co';
+const PHONE          = '+91 97692 77652';
+const WEBSITE        = 'butterbranding.co';
+
+const LEAD_STAGES = ['Prospect','Discussion','Proposal Sent','PI Invoice Sent','Onboarded','Lost','Rejected'];
+const STAGE_COLOR = {
+  Prospect:'#7c3aed', Discussion:'#1565c0', 'Proposal Sent':'#f57f17',
+  'PI Invoice Sent':'#00695c', Onboarded:'#2e7d32', Lost:'#c0392b', Rejected:'#888'
+};
+const STAGE_BADGE = {
+  Prospect:'b-purple', Discussion:'b-blue', 'Proposal Sent':'b-amber',
+  'PI Invoice Sent':'b-teal', Onboarded:'b-green', Lost:'b-red', Rejected:'b-gray'
+};
+const AV_CLASSES  = ['av-a','av-b','av-c','av-d','av-e'];
+const DOT_CLASSES = ['d-green','d-blue','d-amber','d-gray'];
+const DOT_COLORS  = {'d-green':'#2e7d32','d-blue':'#1565c0','d-amber':'#f57f17','d-gray':'#888'};
+
+const MODULES = {
+  dashboard:  { label:'Dashboard'      },
+  tasks:      { label:'Tasks'          },
+  projects:   { label:'Projects'       },
+  leads:      { label:'Lead Master'    },
+  quotations: { label:'Quotations'     },
+  clients:    { label:'Clients & CRM'  },
+  invoices:   { label:'Invoices'       },
+  calendar:   { label:'Calendar'       },
+  alerts:     { label:'Alerts'         },
+  activity:   { label:'Activity Log'   },
+};
+const DEFAULT_PERMS = {
+  dashboard:true, tasks:true, projects:false, leads:false,
+  quotations:false, clients:false, invoices:false,
+  calendar:false, alerts:false, activity:false
+};
+
+// ── FIREBASE ────────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey:            'AIzaSyDcYu1WCNYi42_3ODgmu-0xscdPwXQsUdI',
+  authDomain:        'bbc-os.firebaseapp.com',
+  databaseURL:       'https://bbc-os-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId:         'bbc-os',
+  storageBucket:     'bbc-os.firebasestorage.app',
+  messagingSenderId: '144820389936',
+  appId:             '1:144820389936:web:e5b045368636837e1cc5f5'
+});
+const db = firebase.database();
+
+// ── STATE ────────────────────────────────────────────────────────
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+
+const S = {
+  // Firebase-persisted
+  agencyName: AGENCY_NAME, ownerName: OWNER_NAME,
+  ownerInitials: OWNER_INITIALS, adminEmail: OWNER_EMAIL, adminPwdHash: '',
+  clients: [], projects: [], tasks: [], team: [],
+  invoices: [], activity: [], calEvents: [], leads: [], quotations: [],
+  customServices: [],
+  // Session only (never saved to Firebase)
+  page: 'dashboard', currentUser: null,
+  calYear: TODAY.getFullYear(), calMonth: TODAY.getMonth(),
+  taskTab: 'list', showDone: false,
+  expandedLeads: {}, expandedTasks: {},
+  _loaded: false, _firstRender: false
+};
+
+// ── NAME MAP ────────────────────────────────────────────────────
+const nMap = {};
+function rebuildMaps() {
+  Object.keys(nMap).forEach(k => delete nMap[k]);
+  nMap['OWNER'] = S.ownerName.split(' ')[0];
+  S.team.forEach(m => { nMap[m.id] = m.name.split(' ')[0]; });
+}
+
+// ── HELPERS ─────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const fmtINR   = n => '₹' + Number(n||0).toLocaleString('en-IN');
+const fmtDate  = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+const fmtShort = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '—';
+const fmtDT    = d => {
+  if(!d) return '—';
+  const dt = new Date(d);
+  return fmtShort(dt)+' '+dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+};
+const daysLeft = d => {
+  const t = new Date(d); t.setHours(0,0,0,0);
+  return Math.ceil((t - TODAY) / 86400000);
+};
+const mkInit   = n => n.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+const avClass  = i => AV_CLASSES[i % AV_CLASSES.length];
+const dotClass = i => DOT_CLASSES[i % DOT_CLASSES.length];
+const dotColor = cls => DOT_COLORS[cls] || '#888';
+const isAdmin  = () => S.currentUser === 'OWNER';
+const curMember= () => S.team.find(m => m.id === S.currentUser);
+const memberPerms = m => m ? (m.perms || {...DEFAULT_PERMS}) : {...DEFAULT_PERMS};
+
+// ── SERVICES ────────────────────────────────────────────────────
+// Returns merged built-in + custom services
+// Custom with same code overrides built-in (for edits)
+function allServices() {
+  const customCodes = new Set((S.customServices||[]).map(s => s.code));
+  return [
+    ...BASE_SERVICES.filter(s => !customCodes.has(s.code)),
+    ...(S.customServices||[])
+  ].sort((a,b) => a.cat.localeCompare(b.cat) || a.code.localeCompare(b.code));
+}
+function svcCats() { return [...new Set(allServices().map(s => s.cat))]; }
+
+// ── ACTIVITY LOG ────────────────────────────────────────────────
+function logAct(type, text, icon) {
+  S.activity.unshift({
+    id: uid(), type, text, icon,
+    time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+    ts: Date.now()
+  });
+  if (S.activity.length > 200) S.activity.length = 200;
+}
+
+// ── PROJECT PROGRESS ────────────────────────────────────────────
+function recalcProject(pid) {
+  const p = S.projects.find(p => p.id === pid); if(!p) return;
+  const all = S.tasks.filter(t => t.projectId === pid);
+  p.progress = all.length ? Math.round(all.filter(t=>t.done).length / all.length * 100) : 0;
+  if (p.progress === 100) p.status = 'completed';
+  else if (p.status === 'completed') p.status = 'active';
+}
+
+// ── ALERTS ──────────────────────────────────────────────────────
+function getAlerts() {
+  const uid = S.currentUser;
+  const a = [];
+  S.tasks
+    .filter(t => !t.done && (isAdmin() || t.assignee === uid))
+    .forEach(t => {
+      const d = daysLeft(t.dueDate);
+      if (d < 0) a.push({type:'over', kind:'Task',    name:t.title, detail:`${Math.abs(d)}d overdue`, d});
+      else if(d<=3) a.push({type:'soon', kind:'Task', name:t.title, detail:d===0?'Due today':`Due in ${d}d`, d});
+    });
+  S.projects
+    .filter(p => p.status==='active' && p.progress<100 && (isAdmin()||(p.team||[]).includes(uid)))
+    .forEach(p => {
+      const d = daysLeft(p.dueDate);
+      if (d < 0) a.push({type:'over', kind:'Project',    name:p.name, detail:`${Math.abs(d)}d overdue`, d});
+      else if(d<=7) a.push({type:'soon', kind:'Project', name:p.name, detail:d===0?'Due today':`Due in ${d}d`, d});
+    });
+  if (isAdmin()) {
+    S.invoices
+      .filter(i => i.status!=='paid' && i.status!=='draft')
+      .forEach(i => {
+        const d = daysLeft(i.dueDate);
+        if (d < 0) a.push({type:'over', kind:'Invoice',    name:i.id, detail:`${fmtINR(i.amount)} · ${Math.abs(d)}d overdue`, d});
+        else if(d<=5) a.push({type:'soon', kind:'Invoice', name:i.id, detail:`${fmtINR(i.amount)} · ${d===0?'Due today':'Due in '+d+'d'}`, d});
+      });
+  }
+  return a.sort((a,b) => a.d - b.d);
+}
+
+function getFollowups() {
+  if (!isAdmin()) return [];
+  const now = new Date();
+  return S.leads
+    .filter(l => {
+      if (!l.followupAt || l.followupDone || ['Onboarded','Lost','Rejected'].includes(l.stage)) return false;
+      const diff = Math.round((new Date(l.followupAt) - now) / 60000);
+      return diff >= -30 && diff <= 1440;
+    })
+    .sort((a,b) => new Date(a.followupAt) - new Date(b.followupAt));
+}
+
+// ── FIREBASE SAVE / LOAD ─────────────────────────────────────────
+function save() {
+  const toISO = d => d instanceof Date ? d.toISOString() : d;
+  db.ref('bbcOS').set({
+    agencyName:     S.agencyName,
+    ownerName:      S.ownerName,
+    ownerInitials:  S.ownerInitials,
+    adminEmail:     S.adminEmail,
+    adminPwdHash:   S.adminPwdHash,
+    clients:        S.clients,
+    team:           S.team,
+    activity:       S.activity,
+    leads:          S.leads,
+    quotations:     S.quotations,
+    customServices: S.customServices || [],
+    projects:  S.projects.map(p => ({...p, dueDate: toISO(p.dueDate)})),
+    tasks:     S.tasks.map(t    => ({...t, dueDate: toISO(t.dueDate)})),
+    invoices:  S.invoices.map(i => ({...i, dueDate: toISO(i.dueDate)})),
+    calEvents: S.calEvents.map(e=> ({...e, date:    toISO(e.date)})),
+  }).catch(e => console.error('Firebase save error:', e));
+}
+
+function startFirebase() {
+  // Show loading splash
+  document.getElementById('R').innerHTML = `
+    <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#F5F4F1">
+      <div style="font-size:24px;font-weight:900;font-style:italic;background:linear-gradient(135deg,#7c3aed,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${AGENCY_NAME}</div>
+      <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.1em">Marketing OS · CRM</div>
+      <div style="display:flex;gap:5px">
+        ${[0,.15,.3].map(d=>`<div style="width:7px;height:7px;border-radius:50%;background:#7c3aed;animation:pulse 1.2s ${d}s ease-in-out infinite"></div>`).join('')}
+      </div>
+      <div style="font-size:11px;color:#aaa">Connecting to database…</div>
+    </div>`;
+
+  db.ref('bbcOS').on('value', snap => {
+    const d = snap.val();
+    if (d) {
+      S.agencyName     = d.agencyName     || AGENCY_NAME;
+      S.ownerName      = d.ownerName      || OWNER_NAME;
+      S.ownerInitials  = d.ownerInitials  || OWNER_INITIALS;
+      S.adminEmail     = d.adminEmail     || OWNER_EMAIL;
+      S.adminPwdHash   = d.adminPwdHash   || '';
+      S.clients        = d.clients        || [];
+      S.team           = d.team           || [];
+      S.activity       = d.activity       || [];
+      S.leads          = d.leads          || [];
+      S.quotations     = d.quotations     || [];
+      S.customServices = d.customServices || [];
+      S.projects  = (d.projects  ||[]).map(p => ({...p, dueDate: new Date(p.dueDate)}));
+      S.tasks     = (d.tasks     ||[]).map(t => ({...t, dueDate: new Date(t.dueDate)}));
+      S.invoices  = (d.invoices  ||[]).map(i => ({...i, dueDate: new Date(i.dueDate)}));
+      S.calEvents = (d.calEvents ||[]).map(e => ({...e, date:    new Date(e.date)}));
+    }
+    rebuildMaps();
+    S._loaded = true;
+    if (!S._firstRender) {
+      S._firstRender = true;
+      render();          // First load → show login or dashboard
+    } else if (S.currentUser) {
+      isAdmin() ? renderPage() : renderMemberPage(); // Live sync update
+    }
+  }, err => {
+    document.getElementById('R').innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:10px">
+        <div style="font-size:14px;font-weight:600;color:#c0392b">⚠ Cannot connect to database</div>
+        <div style="font-size:12px;color:#888">Check your internet connection.</div>
+        <button onclick="location.reload()" style="margin-top:8px;padding:8px 16px;border-radius:7px;border:none;background:#1a1a1a;color:#fff;cursor:pointer;font-family:inherit">Retry</button>
+      </div>`;
+  });
+}
+
+// ── CRYPTO ──────────────────────────────────────────────────────
+async function hashPwd(pwd) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwd));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+async function checkPwd(input, stored) {
+  return !!stored && await hashPwd(input) === stored;
+}
+
+// ── TOAST ───────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── UI HELPERS ──────────────────────────────────────────────────
+function em(txt) {
+  return `<div style="font-size:12px;color:#888;text-align:center;padding:1.5rem 0">${txt}</div>`;
+}
+function emptyState(title, sub, action, label) {
+  return `<div style="background:#fff;border:.5px solid rgba(0,0,0,.1);border-radius:12px;padding:1rem 1.25rem;text-align:center;padding:3rem 2rem">
+    <div style="font-size:14px;font-weight:600;margin-bottom:6px">${title}</div>
+    <div style="font-size:12px;color:#888;margin-bottom:1.25rem">${sub}</div>
+    ${action ? `<button class="btn btn-primary" onclick="${action}">${label}</button>` : ''}
+  </div>`;
+}
+
+// ── MODAL ───────────────────────────────────────────────────────
+let _qri = 0; // quote row index — reset on closeModal
+
+function showModal(html) {
+  document.getElementById('M').innerHTML = `
+    <div class="overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">${html}</div>
+    </div>`;
+}
+function closeModal() {
+  document.getElementById('M').innerHTML = '';
+  _qri = 0;
+}
+
+// ── PASSWORD EYE TOGGLE ─────────────────────────────────────────
+function toggleEye(id, el) {
+  const inp = document.getElementById(id); if(!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  el.style.opacity = inp.type === 'text' ? '1' : '.4';
+}
+
+// ── LOGOUT ──────────────────────────────────────────────────────
+function logout() { S.currentUser = null; render(); }
+
+
+// ================================================================
+// BBC AGENCY OS — module-auth.js
+// Login, setup, logout
+// ================================================================
+
+function render() {
+  if (!S.currentUser) { renderLogin(); return; }
+  if (!isAdmin())     { renderMember(); return; }
+  renderShell();
+}
+
+function renderLogin() {
+  if (!S.adminPwdHash) { renderSetup(); return; }
+  document.getElementById('R').innerHTML = `
+    <div class="login-wrap"><div class="login-box">
+      <div style="font-size:20px;font-weight:900;font-style:italic;background:linear-gradient(135deg,#7c3aed,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:2px">${esc(S.agencyName)}</div>
+      <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.75rem">Marketing OS · CRM</div>
+      <div id="li-err" style="display:none;background:#fef0f0;border:.5px solid #fcc;border-radius:7px;padding:8px 12px;font-size:12px;color:#c0392b;margin-bottom:1rem"></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="li-email" type="email" placeholder="you@butterbranding.co" autocomplete="email"></div>
+      <div class="fg"><label class="fl">Password</label><div class="pw-wrap"><input class="fi" id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"><span class="pw-eye" onclick="toggleEye('li-pass',this)">👁</span></div></div>
+      <button class="btn btn-primary" id="li-btn" onclick="doLogin()" style="width:100%;padding:9px;font-size:13px;margin-top:4px">Sign In</button>
+      <div style="margin-top:1rem;font-size:11px;color:#888;text-align:center">Forgot password? Delete <code>adminPwdHash</code> in Firebase Realtime Database to reset.</div>
+    </div></div>`;
+  setTimeout(() => { const e = document.getElementById('li-email'); if(e) e.focus(); }, 100);
+}
+
+function renderSetup() {
+  document.getElementById('R').innerHTML = `
+    <div class="login-wrap"><div class="login-box" style="width:440px">
+      <div style="font-size:20px;font-weight:900;font-style:italic;background:linear-gradient(135deg,#7c3aed,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:2px">${esc(AGENCY_NAME)}</div>
+      <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.25rem">First Time Setup</div>
+      <div style="background:#f3e8ff;border:.5px solid #d1b3ff;border-radius:8px;padding:10px 14px;font-size:12px;color:#6d28d9;margin-bottom:1.25rem">👋 Set your admin credentials to get started. You only see this once.</div>
+      <div id="su-err" style="display:none;background:#fef0f0;border:.5px solid #fcc;border-radius:7px;padding:8px 12px;font-size:12px;color:#c0392b;margin-bottom:1rem"></div>
+      <div class="fg"><label class="fl">Your Name</label><input class="fi" id="su-name" value="${esc(S.ownerName)}"></div>
+      <div class="fg"><label class="fl">Admin Email *</label><input class="fi" id="su-email" type="email" value="${esc(S.adminEmail)}"></div>
+      <div class="fg"><label class="fl">Password *</label><div class="pw-wrap"><input class="fi" id="su-p1" type="password" placeholder="Min 6 characters"><span class="pw-eye" onclick="toggleEye('su-p1',this)">👁</span></div></div>
+      <div class="fg"><label class="fl">Confirm Password *</label><input class="fi" id="su-p2" type="password" onkeydown="if(event.key==='Enter')doSetup()"></div>
+      <button class="btn btn-primary" onclick="doSetup()" style="width:100%;padding:9px;font-size:13px">Set Up & Sign In</button>
+    </div></div>`;
+}
+
+async function doSetup() {
+  const name  = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim().toLowerCase();
+  const p1    = document.getElementById('su-p1').value;
+  const p2    = document.getElementById('su-p2').value;
+  const err   = document.getElementById('su-err');
+  if (!email || !p1)  { err.textContent = 'Email and password required.';    err.style.display = 'block'; return; }
+  if (p1.length < 6)  { err.textContent = 'Password must be 6+ characters.'; err.style.display = 'block'; return; }
+  if (p1 !== p2)      { err.textContent = 'Passwords do not match.';          err.style.display = 'block'; return; }
+  if (name) { S.ownerName = name; S.ownerInitials = mkInit(name); }
+  S.adminEmail    = email;
+  S.adminPwdHash  = await hashPwd(p1);
+  rebuildMaps(); save();
+  S.currentUser = 'OWNER'; S.page = 'dashboard'; render();
+}
+
+async function doLogin() {
+  const email = document.getElementById('li-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('li-pass').value;
+  const err   = document.getElementById('li-err');
+  const btn   = document.getElementById('li-btn');
+  err.style.display = 'none';
+  if (!email || !pass) { err.textContent = 'Enter email and password.'; err.style.display = 'block'; return; }
+  btn.textContent = 'Signing in…'; btn.disabled = true;
+  // Check admin
+  if (email === S.adminEmail.toLowerCase() && await checkPwd(pass, S.adminPwdHash)) {
+    S.currentUser = 'OWNER'; S.page = 'dashboard'; render(); return;
+  }
+  // Check team members
+  const m = S.team.find(m => (m.email||'').toLowerCase() === email);
+  if (m && m.pwdHash && await checkPwd(pass, m.pwdHash)) {
+    S.currentUser = m.id; S.page = 'dashboard'; render(); return;
+  }
+  err.textContent = 'Incorrect email or password.'; err.style.display = 'block';
+  btn.textContent = 'Sign In'; btn.disabled = false;
+}
+
+function openSettings() {
+  showModal(`<div class="modal-title">Agency & Account Settings</div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.04em;margin-bottom:8px">Agency</div>
+    <div class="fg"><label class="fl">Agency Name</label><input class="fi" id="st-agency" value="${esc(S.agencyName)}"></div>
+    <div class="fg"><label class="fl">Your Full Name</label><input class="fi" id="st-name" value="${esc(S.ownerName)}"></div>
+    <div style="border-top:.5px solid #eee;margin:.875rem 0;padding-top:.875rem">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.04em;margin-bottom:8px">Login Credentials</div>
+      <div class="fg"><label class="fl">Admin Email</label><input class="fi" id="st-email" type="email" value="${esc(S.adminEmail)}"></div>
+      <div style="font-size:11px;color:#888;margin-bottom:.75rem">Leave password blank to keep current.</div>
+      <div class="g2">
+        <div class="fg"><label class="fl">New Password</label><div class="pw-wrap"><input class="fi" id="st-p1" type="password" placeholder="Min 6 chars"><span class="pw-eye" onclick="toggleEye('st-p1',this)">👁</span></div></div>
+        <div class="fg"><label class="fl">Confirm</label><input class="fi" id="st-p2" type="password"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveSettings()">Save</button></div>`);
+}
+
+async function saveSettings() {
+  S.ownerName   = document.getElementById('st-name').value.trim()   || S.ownerName;
+  S.agencyName  = document.getElementById('st-agency').value.trim() || S.agencyName;
+  S.ownerInitials = mkInit(S.ownerName);
+  const ne = document.getElementById('st-email').value.trim().toLowerCase();
+  if (ne) {
+    if (S.team.find(m => (m.email||'').toLowerCase() === ne)) { alert('Email in use by a team member.'); return; }
+    S.adminEmail = ne;
+  }
+  const p1 = document.getElementById('st-p1').value;
+  if (p1) {
+    if (p1.length < 6)                               { alert('Min 6 chars.');           return; }
+    if (p1 !== document.getElementById('st-p2').value) { alert('Passwords do not match.'); return; }
+    S.adminPwdHash = await hashPwd(p1);
+  }
+  rebuildMaps(); save(); toast('Settings saved ✓'); closeModal(); render();
+}
+
+
+// ================================================================
+// BBC AGENCY OS — module-shell.js
+// Admin sidebar, topbar, page routing
+// ================================================================
+
+const SVG = {
+  grid:     '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>',
+  bell:     '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a5 5 0 015 5v2l1 2H2l1-2V7a5 5 0 015-5z"/><path d="M6.5 13a1.5 1.5 0 003 0"/></svg>',
+  calendar: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M5 1v3M11 1v3M2 7h12"/></svg>',
+  activity: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2l2-5 3 10 2-5h3"/></svg>',
+  folder:   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h5"/></svg>',
+  check:    '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 4h8M5 8h8M5 12h8"/><circle cx="2.5" cy="4" r="1"/><circle cx="2.5" cy="8" r="1"/><circle cx="2.5" cy="12" r="1"/></svg>',
+  team:     '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5"/><circle cx="12" cy="5" r="2"/><path d="M15 13c0-2.21-1.34-4-3-4"/></svg>',
+  user:     '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a3 3 0 110 6 3 3 0 010-6z"/><path d="M2 14c0-3.31 2.69-6 6-6s6 2.69 6 6"/></svg>',
+  file:     '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V5l-3-3z"/><path d="M9 2v4h4M5 8h6M5 11h3"/></svg>',
+  star:     '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M8 2v12M4 4l8 8M12 4l-8 8"/></svg>',
+  building: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5 7h6M5 10h4"/></svg>',
+  invoice:  '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V5l-3-3z"/><path d="M9 2v4h4M5 8h6M5 11h4"/></svg>',
+};
+
+const PAGE_TITLES = {
+  dashboard:'Dashboard', alerts:'Deadline Alerts', calendar:'Calendar',
+  activity:'Activity Log', projects:'Projects', tasks:'Tasks & Board',
+  team:'Team', leads:'Lead Master', quotations:'Quotations',
+  services:'Services Catalog', clients:'Clients & CRM', invoices:'Invoices'
+};
+
+function renderShell() {
+  const fu = getFollowups();
+  const al = getAlerts();
+  const ovCount = al.filter(a=>a.type==='over').length;
+
+  document.getElementById('R').innerHTML = `
+  <div class="app">
+    <nav class="sb">
+      <div class="sb-logo">
+        <div class="sb-logo-name">${esc(S.agencyName)}</div>
+        <div class="sb-logo-sub">Marketing OS · CRM</div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-lbl">Workspace</div>
+        ${ni('dashboard', SVG.grid,     'Dashboard')}
+        ${ni('alerts',    SVG.bell,     'Alerts',    ovCount+fu.length > 0 ? `<span class="sb-badge">${ovCount+fu.length}</span>` : '')}
+        ${ni('calendar',  SVG.calendar, 'Calendar')}
+        ${ni('activity',  SVG.activity, 'Activity Log')}
+      </div>
+      <div class="sb-section">
+        <div class="sb-lbl">Work</div>
+        ${ni('projects', SVG.folder, 'Projects')}
+        ${ni('tasks',    SVG.check,  'Tasks')}
+        ${ni('team',     SVG.team,   'Team')}
+      </div>
+      <div class="sb-section">
+        <div class="sb-lbl">Sales</div>
+        ${ni('leads',      SVG.user,     'Lead Master',     fu.length > 0 ? `<span class="sb-badge-p">${fu.length}</span>` : '')}
+        ${ni('quotations', SVG.file,     'Quotations')}
+        ${ni('services',   SVG.star,     'Services Catalog')}
+        ${ni('clients',    SVG.building, 'Clients & CRM')}
+        ${ni('invoices',   SVG.invoice,  'Invoices')}
+      </div>
+      <div class="sb-foot">
+        <div class="sb-user" onclick="openSettings()">
+          <div class="av av-a" style="width:28px;height:28px">${esc(S.ownerInitials)}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(S.ownerName)}</div>
+            <div style="font-size:10px;color:#888">Admin · Owner</div>
+          </div>
+        </div>
+        <button class="btn" onclick="logout()" style="width:100%;font-size:11px;margin-top:4px">Switch User</button>
+      </div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title" id="pg-title">Dashboard</div>
+        <div class="topbar-actions" id="pg-actions"></div>
+      </div>
+      <div class="page" id="pg-content"></div>
+    </div>
+  </div>`;
+
+  document.getElementById('M').innerHTML = '';
+  renderPage();
+}
+
+function ni(pg, svg, label, extra = '') {
+  return `<div class="sb-item ${S.page===pg?'on':''}" onclick="nav('${pg}')">${svg}<span style="flex:1">${label}</span>${extra}</div>`;
+}
+
+function nav(pg) {
+  S.page = pg;
+  document.querySelectorAll('.sb-item').forEach(el => {
+    el.classList.toggle('on', el.getAttribute('onclick') === `nav('${pg}')`);
+  });
+  const t = document.getElementById('pg-title');
+  if (t) t.textContent = PAGE_TITLES[pg] || pg;
+  renderPage();
+}
+
+function renderPage() {
+  const c = document.getElementById('pg-content');
+  const a = document.getElementById('pg-actions');
+  if (!c || !a) return;
+  a.innerHTML = '';
+  const t = document.getElementById('pg-title');
+  if (t) t.textContent = PAGE_TITLES[S.page] || S.page;
+  const pages = {
+    dashboard:  pgDashboard,
+    alerts:     pgAlerts,
+    calendar:   pgCalendar,
+    activity:   pgActivity,
+    projects:   pgProjects,
+    tasks:      pgTasks,
+    team:       pgTeam,
+    leads:      pgLeads,
+    quotations: pgQuotations,
+    services:   pgServices,
+    clients:    pgClients,
+    invoices:   pgInvoices,
+  };
+  const fn = pages[S.page] || pgDashboard;
+  fn(c, a);
+}
+
+
+// ================================================================
+// BBC AGENCY OS — module-dashboard.js
+// ================================================================
+function pgDashboard(c, a) {
+  const fu = getFollowups(), al = getAlerts(), ov = al.filter(x=>x.type==='over');
+  const paid = S.invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+Number(i.amount),0);
+  const pend = S.invoices.filter(i=>i.status==='pending').reduce((s,i)=>s+Number(i.amount),0);
+  const openLeads = S.leads.filter(l=>!['Onboarded','Lost','Rejected'].includes(l.stage));
+  c.innerHTML = `
+    ${fu.length ? `<div style="margin-bottom:.875rem;padding:10px 14px;background:#f3e8ff;border:.5px solid #d1b3ff;border-radius:9px">
+      <div style="font-size:10px;font-weight:700;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">📞 Lead Follow-ups Due Today</div>
+      ${fu.map(l=>`<div style="display:flex;align-items:center;gap:10px;margin-top:5px">
+        <span style="font-size:13px;font-weight:500;flex:1">${esc(l.title)}</span>
+        <span style="font-size:11px;color:#6d28d9">${fmtDT(l.followupAt)}</span>
+        ${l.followupPhone?`<span style="font-size:11px;color:#888">${esc(l.followupPhone)}</span>`:''}
+        <button class="btn btn-sm" style="background:#e8f5e9;color:#2e7d32;border-color:#b2dfdb" onclick="markFollowupDone('${l.id}')">✓ Done</button>
+        <button class="btn btn-sm" onclick="openLead('${l.id}')">Open</button>
+      </div>`).join('')}
+    </div>` : ''}
+    ${ov.length ? `<div onclick="nav('alerts')" style="cursor:pointer;margin-bottom:.875rem;padding:10px 14px;background:#fef0f0;border:.5px solid #fcc;border-radius:9px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:12px;color:#c0392b;font-weight:500">⚠ ${ov.length} item${ov.length!==1?'s':''} overdue</span>
+      <span style="font-size:11px;color:#c0392b">View Alerts →</span>
+    </div>` : ''}
+    <div class="g4" style="margin-bottom:1.25rem">
+      <div class="stat"><div class="stat-label">Active Projects</div><div class="stat-val">${S.projects.filter(p=>p.status==='active').length}</div><div class="stat-sub">${S.projects.filter(p=>p.status==='completed').length} completed</div></div>
+      <div class="stat"><div class="stat-label">Open Tasks</div><div class="stat-val">${S.tasks.filter(t=>!t.done).length}</div><div class="stat-sub">${S.tasks.filter(t=>t.done).length} done</div></div>
+      <div class="stat"><div class="stat-label">Active Leads</div><div class="stat-val">${openLeads.length}</div><div class="stat-sub">${S.leads.filter(l=>l.stage==='Onboarded').length} onboarded</div></div>
+      <div class="stat"><div class="stat-label">Revenue Collected</div><div class="stat-val" style="font-size:15px">${fmtINR(paid)}</div><div class="stat-sub">${fmtINR(pend)} pending</div></div>
+    </div>
+    <div class="g2" style="margin-bottom:1rem">
+      <div class="card">
+        <div class="sh"><span class="sh-title">Active Projects</span><button class="btn btn-sm" onclick="nav('projects')">View all</button></div>
+        ${S.projects.filter(p=>p.status==='active').slice(0,5).map(p=>{const d=daysLeft(p.dueDate);return `<div class="li">
+          <div class="proj-dot ${p.dotClass||'d-green'}"></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</div>
+            <div style="font-size:11px;color:#888">${esc(p.client)} · ${fmtShort(p.dueDate)}</div>
+            <div class="pb" style="margin-top:4px"><div class="pb-fill" style="width:${p.progress}%;background:${dotColor(p.dotClass||'d-green')}"></div></div>
+          </div>
+          <span class="badge b-${p.progress===100?'green':p.progress>40?'blue':'amber'}">${p.progress}%</span>
+        </div>`;}).join('') || em('No active projects')}
+      </div>
+      <div class="card">
+        <div class="sh"><span class="sh-title">Lead Pipeline</span><button class="btn btn-sm" onclick="nav('leads')">View all</button></div>
+        ${LEAD_STAGES.map(st=>{const cnt=S.leads.filter(l=>l.stage===st).length;return `<div class="li">
+          <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${STAGE_COLOR[st]};flex-shrink:0"></span>
+          <span style="font-size:12px;flex:1">${st}</span>
+          <span class="badge ${STAGE_BADGE[st]||'b-gray'}">${cnt}</span>
+        </div>`;}).join('')}
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="sh"><span class="sh-title">Upcoming Tasks</span><button class="btn btn-sm" onclick="nav('tasks')">View all</button></div>
+        ${S.tasks.filter(t=>!t.done).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate)).slice(0,5).map(t=>{const d=daysLeft(t.dueDate);return `<div class="li">
+          <div class="chk" onclick="taskToggle('${t.id}')" style="flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.title)}</div>
+            <div style="font-size:11px;color:#888">${esc(t.project||'')}${t.assignee&&t.assignee!=='OWNER'?' · '+( nMap[t.assignee]||t.assignee):''}</div>
+          </div>
+          <span class="badge ${d<0?'b-red':d<=2?'b-amber':'b-gray'}" style="font-size:9px">${d<0?'Overdue':d===0?'Today':d<=2?'Soon':fmtShort(t.dueDate)}</span>
+        </div>`;}).join('') || em('No open tasks')}
+      </div>
+      <div class="card">
+        <div class="sh"><span class="sh-title">Recent Activity</span><button class="btn btn-sm" onclick="nav('activity')">View all</button></div>
+        ${S.activity.slice(0,6).map(a=>`<div style="display:flex;gap:10px;padding:8px 0;border-bottom:.5px solid rgba(0,0,0,.05)">
+          <div style="width:24px;height:24px;border-radius:50%;background:#f3e8ff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">${a.icon||'•'}</div>
+          <div><div style="font-size:12px">${a.text}</div><div style="font-size:10px;color:#888;margin-top:2px">${a.time}</div></div>
+        </div>`).join('') || em('No activity yet')}
+      </div>
+    </div>`;
+}
+
+function markFollowupDone(id) {
+  const l = S.leads.find(l=>l.id===id); if(!l) return;
+  l.followupDone = true; save();
+  toast(`Follow-up with ${l.title} marked done ✓`);
+  logAct('lead', `Follow-up with <b>${esc(l.title)}</b> completed`, '✓');
+  renderPage();
+}
+
+function openLead(id) { S.expandedLeads[id] = true; nav('leads'); }
+
+
+// ================================================================
+// BBC AGENCY OS — module-alerts.js
+// Deadline alerts + lead follow-up alerts
+// Follow-up alerts are ADMIN ONLY — never shown to team members
+// ================================================================
+function pgAlerts(c, a) {
+  const al = getAlerts();
+  const ov = al.filter(x=>x.type==='over');
+  const soon = al.filter(x=>x.type==='soon');
+  const fu = getFollowups(); // admin-only per core.js
+  c.innerHTML = `<div style="max-width:680px">
+    ${!al.length && !fu.length ? `<div class="card" style="text-align:center;padding:2rem;color:#888">✓ All clear — nothing needs attention right now</div>` : ''}
+    ${fu.length ? `<div style="margin-bottom:1.25rem">
+      <div style="font-size:10px;font-weight:700;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">📞 Lead Follow-ups (${fu.length})</div>
+      ${fu.map(l=>`<div class="alert-card al-purple">
+        <div style="width:7px;height:7px;border-radius:50%;background:#7c3aed;margin-top:4px;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div style="font-size:10px;font-weight:600;text-transform:uppercase;color:#6d28d9;margin-bottom:2px">Follow-up · ${esc(l.stage)}</div>
+          <div style="font-size:13px;font-weight:500">${esc(l.title)}</div>
+          <div style="font-size:11px;color:#6d28d9;margin-top:2px">${fmtDT(l.followupAt)}${l.followupPhone?' · '+esc(l.followupPhone):''}</div>
+          ${l.followupNote ? `<div style="font-size:11px;color:#555;margin-top:2px">${esc(l.followupNote)}</div>` : ''}
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn btn-sm" style="background:#e8f5e9;color:#2e7d32;border-color:#b2dfdb" onclick="markFollowupDone('${l.id}')">✓ Done</button>
+          <button class="btn btn-sm" onclick="openLead('${l.id}')">Open Lead</button>
+        </div>
+      </div>`).join('')}
+    </div>` : ''}
+    ${ov.length ? `<div style="margin-bottom:1.25rem">
+      <div style="font-size:10px;font-weight:700;color:#c0392b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Overdue (${ov.length})</div>
+      ${ov.map(alertCard).join('')}
+    </div>` : ''}
+    ${soon.length ? `<div>
+      <div style="font-size:10px;font-weight:700;color:#f57f17;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Due Soon (${soon.length})</div>
+      ${soon.map(alertCard).join('')}
+    </div>` : ''}
+  </div>`;
+}
+
+function alertCard(al) {
+  const ov = al.type === 'over';
+  return `<div class="alert-card ${ov?'al-red':'al-amber'}">
+    <div style="width:7px;height:7px;border-radius:50%;background:${ov?'#c0392b':'#f57f17'};margin-top:4px;flex-shrink:0"></div>
+    <div style="flex:1">
+      <div style="font-size:10px;font-weight:600;text-transform:uppercase;color:${ov?'#c0392b':'#f57f17'};margin-bottom:2px">${esc(al.kind)} ${ov?'Overdue':'Due Soon'}</div>
+      <div style="font-size:13px;font-weight:500">${esc(al.name)}</div>
+      <div style="font-size:11px;color:${ov?'#c0392b':'#f57f17'};margin-top:2px">${esc(al.detail)}</div>
+    </div>
+  </div>`;
+}
+
+
+// ================================================================
+// BBC AGENCY OS — module-calendar.js
+// ================================================================
+function pgCalendar(c, a) {
+  a.innerHTML = `
+    <button class="btn" onclick="calPrev()">← Prev</button>
+    <button class="btn" onclick="calNext()">Next →</button>
+    <button class="btn btn-primary" onclick="openAddCalEvent()">+ Event</button>`;
+
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const y = S.calYear, m = S.calMonth;
+  const fd  = new Date(y, m, 1).getDay();
+  const dim = new Date(y, m+1, 0).getDate();
+  const dip = new Date(y, m, 0).getDate();
+
+  // Build event map: date-key → [{label, cls, id?}]
+  const evMap = {};
+  function addEv(dt, ev) {
+    const d = new Date(dt);
+    const k = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    if (!evMap[k]) evMap[k] = [];
+    evMap[k].push(ev);
+  }
+  S.tasks.filter(t=>!t.done).forEach(t => addEv(t.dueDate, {label:`[T] ${t.title.slice(0,14)}`, cls: daysLeft(t.dueDate)<0?'ev-o':'ev-t'}));
+  S.projects.filter(p=>p.status==='active').forEach(p => addEv(p.dueDate, {label:`[P] ${p.name.slice(0,14)}`, cls: daysLeft(p.dueDate)<0?'ev-o':'ev-p'}));
+  S.invoices.filter(i=>i.status!=='paid'&&i.status!=='draft').forEach(i => addEv(i.dueDate, {label:`[I] ${i.id}`, cls:'ev-i'}));
+  if (isAdmin()) S.leads.filter(l=>l.followupAt&&!l.followupDone).forEach(l => addEv(new Date(l.followupAt), {label:`[F] ${l.title.slice(0,13)}`, cls:'ev-l'}));
+  S.calEvents.forEach(e => addEv(e.date, {label: e.title, cls:'ev-c', id: e.id}));
+
+  let cells = '', dc = 1;
+  for (let i = 0; i < 42; i++) {
+    let cd, ot = false;
+    if (i < fd)   { cd = new Date(y, m-1, dip-fd+1+i); ot = true; }
+    else if (dc <= dim) { cd = new Date(y, m, dc++); }
+    else          { cd = new Date(y, m+1, dc++-dim); ot = true; }
+    const isT = cd.toDateString() === TODAY.toDateString();
+    const k   = `${cd.getFullYear()}-${cd.getMonth()}-${cd.getDate()}`;
+    const evs = evMap[k] || [];
+    const iso = cd.toISOString().split('T')[0];
+    const dateNum = isT
+      ? `<span style="background:#1a1a1a;color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px">${cd.getDate()}</span>`
+      : cd.getDate();
+    cells += `<div class="cal-cell ${ot?'other':''} ${isT?'today':''}" onclick="openAddCalEvent('${iso}')">
+      <div class="cal-date">${dateNum}</div>
+      ${evs.slice(0,3).map(ev=>`<div class="cal-ev ${ev.cls}" ${ev.id?`onclick="event.stopPropagation();delCalEv('${ev.id}')" title="Click to delete"`:''} >${esc(ev.label)}</div>`).join('')}
+      ${evs.length>3 ? `<div style="font-size:9px;color:#aaa;padding:1px 5px">+${evs.length-3} more</div>` : ''}
+    </div>`;
+  }
+
+  c.innerHTML = `<div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+      <span style="font-size:14px;font-weight:600">${MONTHS[m]} ${y}</span>
+      <div style="display:flex;gap:10px;font-size:11px;flex-wrap:wrap">
+        ${[['ev-t','Tasks'],['ev-p','Projects'],['ev-i','Invoices'],['ev-l','Follow-ups'],['ev-c','Custom Events'],['ev-o','Overdue']].map(([cls,lbl])=>`<span style="display:flex;align-items:center;gap:3px"><span class="cal-ev ${cls}" style="width:10px;height:10px;display:inline-block;border-radius:2px;padding:0"></span>${lbl}</span>`).join('')}
+      </div>
+    </div>
+    <div class="cal-grid">
+      ${DAYS.map(d=>`<div class="cal-lbl">${d}</div>`).join('')}
+      ${cells}
+    </div>
+    <div style="font-size:10px;color:#888;text-align:center;margin-top:.75rem">Click any date to add an event · Click a teal event to delete it</div>
+  </div>`;
+}
+
+function calPrev() { S.calMonth--; if (S.calMonth < 0) { S.calMonth=11; S.calYear--; } renderPage(); }
+function calNext() { S.calMonth++; if (S.calMonth > 11) { S.calMonth=0;  S.calYear++; } renderPage(); }
+
+function openAddCalEvent(pre) {
+  showModal(`<div class="modal-title">Add Calendar Event</div>
+    <div class="fg"><label class="fl">Title *</label><input class="fi" id="ev-t" placeholder="e.g. Client call"></div>
+    <div class="fg"><label class="fl">Date</label><input class="fi" id="ev-d" type="date" value="${pre||''}"></div>
+    <div class="fg"><label class="fl">Note</label><input class="fi" id="ev-n" placeholder="Details..."></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCalEv()">Add Event</button>
+    </div>`);
+}
+
+function saveCalEv() {
+  const t = document.getElementById('ev-t').value.trim();
+  const d = document.getElementById('ev-d').value;
+  if (!t || !d) { alert('Title and date required.'); return; }
+  S.calEvents.push({ id:uid(), title:t, date:new Date(d), note:document.getElementById('ev-n').value.trim() });
+  save(); closeModal(); renderPage();
+}
+
+function delCalEv(id) {
+  const i = S.calEvents.findIndex(e=>e.id===id);
+  if (i > -1) { S.calEvents.splice(i,1); save(); renderPage(); }
+}
+
+
+// ================================================================
+// BBC AGENCY OS — module-activity.js
+// ================================================================
+function pgActivity(c, a) {
+  a.innerHTML = `<button class="btn btn-danger btn-sm" onclick="if(confirm('Clear all activity?')){S.activity=[];save();renderPage();}">Clear Log</button>`;
+  c.innerHTML = `<div class="card" style="max-width:640px">
+    ${S.activity.length ? S.activity.map(act => `
+      <div style="display:flex;gap:12px;padding:10px 0;border-bottom:.5px solid rgba(0,0,0,.06)">
+        <div style="width:28px;height:28px;border-radius:50%;background:#f3e8ff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">${act.icon||'•'}</div>
+        <div>
+          <div style="font-size:12px">${act.text}</div>
+          <div style="font-size:10px;color:#888;margin-top:2px">${act.time}</div>
+        </div>
+      </div>`).join('') : em('No activity yet')}
+  </div>`;
+}
+
+
+// ================================================================
+// BBC AGENCY OS — module-projects.js
+// ================================================================
+function pgProjects(c, a) {
+  a.innerHTML = `<button class="btn btn-primary" onclick="openAddProject()">+ New Project</button>`;
+  if (!S.projects.length) { c.innerHTML = emptyState('No projects yet','Add a client first, then create a project','openAddProject()','+ New Project'); return; }
+  c.innerHTML = `<div class="g3">${S.projects.map(p => {
+    const tasks = S.tasks.filter(t=>t.projectId===p.id);
+    const done  = tasks.filter(t=>t.done).length;
+    const d = daysLeft(p.dueDate); const ic = p.status==='completed';
+    const teamAv = (p.team||[]).map(id => {
+      const m = S.team.find(m=>m.id===id);
+      return `<div class="av ${m?m.avClass:'av-a'}" style="width:22px;height:22px;margin-left:-5px;border:1.5px solid #fff;font-size:8px">${id==='OWNER'?S.ownerInitials:id}</div>`;
+    }).join('');
+    return `<div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
+        <div class="proj-dot ${p.dotClass||'d-green'}"></div>
+        <div style="font-size:13px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</div>
+        <span class="badge ${ic?'b-green':p.status==='active'?'b-blue':'b-amber'}">${ic?'✓ Done':p.status}</span>
+      </div>
+      <div style="font-size:11px;color:#888;margin-bottom:3px">${esc(p.client)}</div>
+      <div style="font-size:11px;color:${d<0&&!ic?'#c0392b':d<=7&&!ic?'#f57f17':'#888'};margin-bottom:10px">
+        Due ${fmtDate(p.dueDate)}${d<0&&!ic?' · Overdue':d<=7&&!ic?' · Due soon':''}
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="display:flex;margin-left:5px">${teamAv}</div>
+        <span style="font-size:11px;color:#888">${done}/${tasks.length} tasks</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div class="pb" style="flex:1"><div class="pb-fill" style="width:${p.progress}%;background:${ic?'#2e7d32':dotColor(p.dotClass||'d-green')}"></div></div>
+        <span style="font-size:12px;font-weight:700;color:${ic?'#2e7d32':dotColor(p.dotClass||'d-green')}">${p.progress}%</span>
+      </div>
+      ${ic ? `<div style="font-size:11px;color:#2e7d32;background:#e8f5e9;border-radius:6px;padding:5px 9px;text-align:center;margin-bottom:8px">✓ All tasks complete</div>` : ''}
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="openAddTaskForProject('${p.id}')" style="flex:1;font-size:11px">+ Add Task</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProject('${p.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function openAddProject() {
+  if (!S.clients.length) { alert('Add a client first before creating a project.'); return; }
+  window._extraTasks = [];
+  const co = S.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  const to = S.team.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('');
+  showModal(`<div class="modal-title">New Project</div>
+    <div style="background:#f3e8ff;border:.5px solid #d1b3ff;border-radius:7px;padding:8px 12px;font-size:11px;color:#6d28d9;margin-bottom:1rem">⚡ At least one task is required when creating a project.</div>
+    <div class="fg"><label class="fl">Project Name *</label><input class="fi" id="pj-name" placeholder="e.g. Q3 Social Campaign"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Client *</label><select class="fi" id="pj-client">${co}</select></div>
+      <div class="fg"><label class="fl">Due Date</label><input class="fi" id="pj-due" type="date"></div>
+    </div>
+    <div class="fg"><label class="fl">Status</label><select class="fi" id="pj-status"><option value="active">Active</option><option value="lead">Lead / Proposal</option></select></div>
+    <div style="border-top:.5px solid #eee;margin:.875rem 0;padding-top:.875rem">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.04em;margin-bottom:8px">First Task <span style="color:#c0392b">*</span></div>
+    </div>
+    <div class="fg"><label class="fl">Task Title *</label><input class="fi" id="t1-title" placeholder="e.g. Initial brief and kickoff"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Assign To</label><select class="fi" id="t1-assign"><option value="OWNER">${esc(S.ownerName)} (You)</option>${to}</select></div>
+      <div class="fg"><label class="fl">Due Date</label><input class="fi" id="t1-due" type="date"></div>
+    </div>
+    <div class="fg"><label class="fl">Priority</label><select class="fi" id="t1-pri"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fi" id="t1-notes" style="min-height:56px" placeholder="Task details..."></textarea></div>
+    <div id="extra-tasks"></div>
+    <button class="btn btn-sm" onclick="addExtraTask()" style="margin-bottom:.75rem">+ Add Another Task</button>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProject()">Create Project & Tasks</button>
+    </div>`);
+}
+
+function addExtraTask() {
+  const i = (window._extraTasks || []).length;
+  if (!window._extraTasks) window._extraTasks = [];
+  window._extraTasks.push(i);
+  const to = S.team.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('');
+  const div = document.createElement('div');
+  div.id = `et-${i}`;
+  div.style.cssText = 'background:#f8f7f5;border-radius:8px;padding:10px;margin-bottom:8px;border:.5px solid #eee';
+  div.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+    <span style="font-size:11px;font-weight:600;color:#888">Task ${i+2}</span>
+    <button class="btn btn-danger btn-sm" onclick="this.closest('[id]').remove()">✕</button>
+  </div>
+  <div class="fg" style="margin-bottom:6px"><input class="fi" id="et${i}-t" placeholder="Task title *"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+    <select class="fi" id="et${i}-a"><option value="OWNER">${esc(S.ownerName)}</option>${to}</select>
+    <input class="fi" id="et${i}-d" type="date">
+    <select class="fi" id="et${i}-p"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select>
+  </div>`;
+  document.getElementById('extra-tasks').appendChild(div);
+}
+
+function saveProject() {
+  const name = document.getElementById('pj-name').value.trim();
+  if (!name) { alert('Project name required.'); return; }
+  const t1 = document.getElementById('t1-title').value.trim();
+  if (!t1) { alert('At least one task is required.'); document.getElementById('t1-title').focus(); return; }
+  const clientId = document.getElementById('pj-client').value;
+  const cl = S.clients.find(c=>c.id===clientId);
+  const due = document.getElementById('pj-due').value;
+  const pid = uid();
+  const dotC = dotClass(S.projects.length);
+  const proj = {
+    id:pid, name, client:cl.name, clientId, status:document.getElementById('pj-status').value,
+    progress:0, dotClass:dotC, team:['OWNER'],
+    dueDate: due ? new Date(due) : new Date(TODAY.getTime()+30*86400000)
+  };
+  S.projects.push(proj);
+  if (cl) cl.projects = (cl.projects||0) + 1;
+
+  // Save first task
+  const t1due = document.getElementById('t1-due').value;
+  const t1assign = document.getElementById('t1-assign').value;
+  S.tasks.push({
+    id:uid(), title:t1, project:name, projectId:pid, assignee:t1assign,
+    priority:document.getElementById('t1-pri').value,
+    notes:document.getElementById('t1-notes').value.trim(),
+    done:false,
+    dueDate: t1due ? new Date(t1due) : new Date(TODAY.getTime()+7*86400000)
+  });
+  if (!proj.team.includes(t1assign)) proj.team.push(t1assign);
+
+  // Extra tasks
+  (window._extraTasks||[]).forEach(i => {
+    const titleEl = document.getElementById(`et${i}-t`);
+    if (!titleEl) return;
+    const tt = titleEl.value.trim(); if (!tt) return;
+    const tdue = document.getElementById(`et${i}-d`)?.value;
+    const tassign = document.getElementById(`et${i}-a`)?.value || 'OWNER';
+    S.tasks.push({
+      id:uid(), title:tt, project:name, projectId:pid, assignee:tassign,
+      priority:document.getElementById(`et${i}-p`)?.value||'medium',
+      notes:'', done:false,
+      dueDate: tdue ? new Date(tdue) : new Date(TODAY.getTime()+7*86400000)
+    });
+    if (!proj.team.includes(tassign)) proj.team.push(tassign);
+  });
+  window._extraTasks = [];
+  recalcProject(pid); save();
+  logAct('project', `Project <b>${esc(name)}</b> created`, '📁');
+  toast(`"${name}" created`); closeModal(); renderPage();
+}
+
+function openAddTaskForProject(pid) {
+  const p = S.projects.find(p=>p.id===pid); if(!p) return;
+  const to = S.team.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('');
+  showModal(`<div class="modal-title">Add Task — ${esc(p.name)}</div>
+    <div class="fg"><label class="fl">Task Title *</label><input class="fi" id="ta-title" placeholder="e.g. Design story set"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Assign To</label><select class="fi" id="ta-assign"><option value="OWNER">${esc(S.ownerName)} (You)</option>${to}</select></div>
+      <div class="fg"><label class="fl">Due Date</label><input class="fi" id="ta-due" type="date"></div>
+    </div>
+    <div class="fg"><label class="fl">Priority</label><select class="fi" id="ta-pri"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fi" id="ta-notes" placeholder="Task details..."></textarea></div>
+    <input type="hidden" id="ta-proj" value="${pid}">
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveTask()">Add Task</button></div>`);
+}
+
+function deleteProject(pid) {
+  const p = S.projects.find(p=>p.id===pid); if(!p) return;
+  const taskCount = S.tasks.filter(t=>t.projectId===pid).length;
+  if (!confirm(`Delete "${p.name}"?\n\n${taskCount} task${taskCount!==1?'s':''} will also be deleted.`)) return;
+  S.projects.splice(S.projects.findIndex(p=>p.id===pid), 1);
+  S.tasks = S.tasks.filter(t=>t.projectId!==pid);
+  save(); toast(`"${p.name}" deleted`); renderPage();
+}
+
+
+// ================================================================
+// BBC AGENCY OS — module-tasks.js
+// ================================================================
+function pgTasks(c, a) {
+  a.innerHTML = `
+    <button class="btn" onclick="S.taskTab=S.taskTab==='list'?'board':'list';renderPage()">
+      ${S.taskTab==='list'?'Switch to Board':'Switch to List'}
+    </button>
+    <button class="btn btn-primary" onclick="openAddTask()">+ Add Task</button>`;
+
+  if (!S.tasks.length) { c.innerHTML = emptyState('No tasks yet','Create a project first, then add tasks','openAddTask()','+ Add Task'); return; }
+
+  const openT = S.tasks.filter(t=>!t.done);
+  const doneT = S.tasks.filter(t=>t.done);
+
+  if (S.taskTab === 'list') {
+    c.innerHTML = `<div class="card" style="padding:0"><table>
+      <thead><tr>
+        <th style="width:24px;padding-left:12px"></th>
+        <th>Task</th><th>Project</th><th>Assignee</th><th>Due</th><th>Priority</th><th>Status</th>
+      </tr></thead>
+      <tbody>
+        ${openT.map(t=>taskRow(t)).join('')}
+        ${doneT.length ? `
+          <tr><td colspan="7" style="padding:8px 12px;background:#f8f7f5;border-top:1.5px solid rgba(0,0,0,.08)">
+            <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888;cursor:pointer" onclick="S.showDone=!S.showDone;renderPage()">
+              ${S.showDone?'▾':'▸'} Completed (${doneT.length}) — click to ${S.showDone?'hide':'show'}
+            </span>
+          </td></tr>
+          ${S.showDone ? doneT.map(t=>taskRow(t)).join('') : ''}
+        ` : ''}
+      </tbody>
+    </table></div>`;
+  } else {
+    // Kanban board
+    const cols = [
+      {k:'todo', l:'To Do'},
+      {k:'doing', l:'In Progress'},
+      {k:'review', l:'Review'},
+      {k:'done', l:'Done ✓'}
+    ];
+    const buckets = {todo:[], doing:[], review:[], done:[]};
+    openT.forEach((t,i) => { if(i%3===0) buckets.review.push(t); else if(i%3===1) buckets.doing.push(t); else buckets.todo.push(t); });
+    buckets.done = doneT;
+    c.innerHTML = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem">
+      ${cols.map(col=>`<div style="background:#f4f3f0;border-radius:12px;padding:.875rem">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:.75rem;display:flex;justify-content:space-between">
+          <span>${col.l}</span>
+          <span style="background:#fff;border:.5px solid #eee;border-radius:10px;padding:1px 7px;font-size:10px">${buckets[col.k].length}</span>
+        </div>
+        ${buckets[col.k].map(t=>{const d=daysLeft(t.dueDate);return `<div style="background:#fff;border:.5px solid #eee;border-radius:8px;padding:.75rem;margin-bottom:.5rem;cursor:pointer" onclick="openEditTask('${t.id}')">
+          <div style="font-size:12px;font-weight:500;margin-bottom:5px;${t.done?'text-decoration:line-through;color:#888':''}">${esc(t.title)}</div>
+          <div style="font-size:11px;color:${!t.done&&d<0?'#c0392b':!t.done&&d<=2?'#f57f17':'#888'};margin-bottom:5px">${fmtShort(t.dueDate)}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:10px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px">${esc(t.project||'')}</span>
+            <span class="badge b-${t.priority==='high'?'red':t.priority==='medium'?'amber':'gray'}" style="font-size:9px">${t.priority}</span>
+          </div>
+        </div>`;}).join('') || `<div style="font-size:12px;color:#aaa;text-align:center;padding:1rem 0">Empty</div>`}
+      </div>`).join('')}
+    </div>`;
+  }
+}
+
+function taskRow(t) {
+  const d  = daysLeft(t.dueDate);
+  const ex = S.expandedTasks[t.id];
+  const m  = S.team.find(m=>m.id===t.assignee);
+  return `<tr onclick="S.expandedTasks['${t.id}']=!S.expandedTasks['${t.id}'];renderPage()">
+    <td style="padding-left:12px"><span style="font-size:10px;color:#bbb">${ex?'▾':'▸'}</span></td>
+    <td><div style="display:flex;align-items:center;gap:8px">
+      <div class="chk ${t.done?'done':''}" onclick="event.stopPropagation();taskToggle('${t.id}')"></div>
+      <span style="${t.done?'text-decoration:line-through;color:#888':''}">${esc(t.title)}</span>
+    </div></td>
+    <td style="color:#888">${esc(t.project||'')}</td>
+    <td><div style="display:flex;align-items:center;gap:6px">
+      <div class="av ${m?m.avClass:'av-a'}" style="width:20px;height:20px;font-size:8px">${t.assignee==='OWNER'?S.ownerInitials:t.assignee}</div>
+      <span style="color:#888">${nMap[t.assignee]||t.assignee}</span>
+    </div></td>
+    <td style="color:${!t.done&&d<0?'#c0392b':!t.done&&d<=2?'#f57f17':'#888'};font-size:11px">
+      ${fmtShort(t.dueDate)}${!t.done&&d<0?' · OD':!t.done&&d<=2?' · Soon':''}
+    </td>
+    <td><span class="badge b-${t.priority==='high'?'red':t.priority==='medium'?'amber':'gray'}">${t.priority}</span></td>
+    <td><span class="badge ${t.done?'b-green':'b-blue'}">${t.done?'done':'open'}</span></td>
+  </tr>
+  ${ex ? `<tr><td colspan="7" style="padding:10px 14px 10px 50px;background:#fafaf9;border-bottom:.5px solid rgba(0,0,0,.06)">
+    ${t.notes ? `<div style="font-size:12px;background:#f4f3f0;border-radius:6px;padding:8px 10px;color:#444;margin-bottom:8px">${esc(t.notes)}</div>` : '<div style="font-size:11px;color:#aaa;margin-bottom:8px">No notes</div>'}
+    <button class="btn btn-sm no-print" onclick="event.stopPropagation();openEditTask('${t.id}')">✎ Edit Task</button>
+  </td></tr>` : ''}`;
+}
+
+function taskToggle(id) {
+  const t = S.tasks.find(t=>t.id===id); if(!t) return;
+  t.done = !t.done;
+  recalcProject(t.projectId);
+  logAct('task', `<b>${nMap[S.currentUser]||S.currentUser}</b> ${t.done?'completed':'reopened'} "<b>${esc(t.title)}</b>"`, t.done?'✓':'↺');
+  save(); renderPage();
+}
+
+function openAddTask() {
+  if (!S.projects.length) { alert('Create a project first.'); return; }
+  const po = S.projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  const to = S.team.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('');
+  showModal(`<div class="modal-title">Add Task</div>
+    <div class="fg"><label class="fl">Task Title *</label><input class="fi" id="ta-title" placeholder="e.g. Design story set"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Project</label><select class="fi" id="ta-proj">${po}</select></div>
+      <div class="fg"><label class="fl">Assign To</label><select class="fi" id="ta-assign"><option value="OWNER">${esc(S.ownerName)} (You)</option>${to}</select></div>
+      <div class="fg"><label class="fl">Due Date</label><input class="fi" id="ta-due" type="date"></div>
+      <div class="fg"><label class="fl">Priority</label><select class="fi" id="ta-pri"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
+    </div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fi" id="ta-notes" placeholder="Task details..."></textarea></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveTask()">Add Task</button></div>`);
+}
+
+function saveTask() {
+  const title = document.getElementById('ta-title').value.trim();
+  if (!title) { alert('Title required.'); return; }
+  const projId = document.getElementById('ta-proj').value;
+  const proj   = S.projects.find(p=>p.id===projId);
+  const assign = document.getElementById('ta-assign').value;
+  const due    = document.getElementById('ta-due').value;
+  S.tasks.push({
+    id:uid(), title, project:proj?proj.name:'', projectId:projId, assignee:assign,
+    priority:document.getElementById('ta-pri').value,
+    notes:document.getElementById('ta-notes').value.trim(),
+    done:false,
+    dueDate: due ? new Date(due) : new Date(TODAY.getTime()+7*86400000)
+  });
+  if (proj && !(proj.team||[]).includes(assign)) proj.team = [...(proj.team||['OWNER']), assign];
+  recalcProject(projId);
+  logAct('task', `<b>${nMap[assign]||assign}</b> assigned "<b>${esc(title)}</b>"`, '→');
+  save(); closeModal(); renderPage();
+}
+
+function openEditTask(id) {
+  const t  = S.tasks.find(t=>t.id===id); if(!t) return;
+  const po = S.projects.map(p=>`<option value="${p.id}" ${p.id===t.projectId?'selected':''}>${esc(p.name)}</option>`).join('');
+  const to = S.team.map(m=>`<option value="${m.id}" ${m.id===t.assignee?'selected':''}>${esc(m.name)}</option>`).join('');
+  const dv = t.dueDate ? new Date(t.dueDate).toISOString().split('T')[0] : '';
+  showModal(`<div class="modal-title">Edit Task</div>
+    <div class="fg"><label class="fl">Title *</label><input class="fi" id="ta-title" value="${esc(t.title)}"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Project</label><select class="fi" id="ta-proj">${po}</select></div>
+      <div class="fg"><label class="fl">Assign To</label><select class="fi" id="ta-assign"><option value="OWNER" ${t.assignee==='OWNER'?'selected':''}>${esc(S.ownerName)}</option>${to}</select></div>
+      <div class="fg"><label class="fl">Due Date</label><input class="fi" id="ta-due" type="date" value="${dv}"></div>
+      <div class="fg"><label class="fl">Priority</label><select class="fi" id="ta-pri">
+        <option value="high" ${t.priority==='high'?'selected':''}>High</option>
+        <option value="medium" ${t.priority==='medium'?'selected':''}>Medium</option>
+        <option value="low" ${t.priority==='low'?'selected':''}>Low</option>
+      </select></div>
+    </div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fi" id="ta-notes">${esc(t.notes||'')}</textarea></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteTask('${id}')">Delete</button>
+      <button class="btn btn-primary" onclick="updateTask('${id}')">Save</button>
+    </div>`);
+}
+
+function updateTask(id) {
+  const t = S.tasks.find(t=>t.id===id); if(!t) return;
+  t.title    = document.getElementById('ta-title').value.trim() || t.title;
+  t.projectId= document.getElementById('ta-proj').value;
+  const proj = S.projects.find(p=>p.id===t.projectId);
+  if (proj) t.project = proj.name;
+  t.assignee = document.getElementById('ta-assign').value;
+  t.priority = document.getElementById('ta-pri').value;
+  t.notes    = document.getElementById('ta-notes').value.trim();
+  const due  = document.getElementById('ta-due').value;
+  if (due) t.dueDate = new Date(due);
+  save(); closeModal(); renderPage();
+}
+
+function deleteTask(id) {
+  const t = S.tasks.find(t=>t.id===id); if(!t) return;
+  if (!confirm(`Delete "${t.title}"?`)) return;
+  S.tasks.splice(S.tasks.findIndex(t=>t.id===id), 1);
+  recalcProject(t.projectId);
+  save(); closeModal(); renderPage();
+}
+
+
+// ================================================================
+// BBC AGENCY OS — module-team.js
+// Admin CRUD for team members + module access control
+// ================================================================
+function pgTeam(c, a) {
+  a.innerHTML = `<button class="btn btn-primary" onclick="openAddMember()">+ Add Member</button>`;
+  if (!S.team.length) {
+    c.innerHTML = emptyState('No team members yet','Add members, set their modules, share their login credentials','openAddMember()','+ Add Member');
+    return;
+  }
+  c.innerHTML = `
+    <div style="margin-bottom:1rem;padding:10px 14px;background:#e3f2fd;border:.5px solid #90caf9;border-radius:8px;font-size:12px;color:#1565c0">
+      <b>Module Access Control.</b> Members log in with email & password. They only see modules you enable,
+      only their own tasks & projects, and <b>never</b> see financial data or service pricing.
+    </div>
+    <div class="g2">
+      ${S.team.map(m => {
+        const mt     = S.tasks.filter(t=>t.assignee===m.id&&!t.done);
+        const perms  = memberPerms(m);
+        const modKeys= Object.keys(MODULES);
+        const enabled= modKeys.filter(k=>perms[k]).length;
+        return `<div class="card">
+          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:1rem">
+            <div class="av ${m.avClass||'av-a'}" style="width:42px;height:42px;font-size:14px">${m.id}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:700">${esc(m.name)}</div>
+              <div style="font-size:11px;color:#888">${esc(m.role||'Team Member')}</div>
+              <div style="font-size:11px;color:${m.email?'#1a1a1a':'#c0392b'};margin-top:3px">${m.email?'📧 '+esc(m.email):'⚠ No email set — click Edit'}</div>
+              <div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap">
+                <span class="badge ${mt.length>2?'b-amber':mt.length>0?'b-green':'b-gray'}">${mt.length} open task${mt.length!==1?'s':''}</span>
+                <span class="badge b-blue">${enabled} module${enabled!==1?'s':''} enabled</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:5px;flex-shrink:0">
+              <button class="btn btn-sm" onclick="openEditMember('${m.id}')">✎ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="removeMember('${m.id}')">✕</button>
+            </div>
+          </div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:7px">Module Access — click to toggle</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:.875rem">
+            ${modKeys.map(k => {
+              const on = !!perms[k];
+              return `<div onclick="togglePerm('${m.id}','${k}')" style="display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:7px;border:1px solid ${on?'#7c3aed':'rgba(0,0,0,.09)'};background:${on?'#f0e6ff':'#fafaf9'};cursor:pointer;user-select:none">
+                <div class="toggle ${on?'on':''}"></div>
+                <span style="font-size:11px;font-weight:${on?'600':'400'};color:${on?'#6d28d9':'#999'}">${MODULES[k].label}</span>
+              </div>`;
+            }).join('')}
+          </div>
+          <div style="font-size:10px;color:#f57f17;background:#fff8e1;border-radius:6px;padding:5px 9px;margin-bottom:.75rem">
+            🔒 Services catalog, rates & all financial figures are permanently hidden from members.
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn" onclick="openAssignTask('${m.id}')" style="flex:1;font-size:11px">+ Assign Task</button>
+            <button class="btn btn-sm" onclick="openEditMember('${m.id}')">Edit Details</button>
+            <button class="btn btn-danger btn-sm" onclick="removeMember('${m.id}')">Remove</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function togglePerm(mid, mod) {
+  const m = S.team.find(m=>m.id===mid); if(!m) return;
+  if (!m.perms) m.perms = {...DEFAULT_PERMS};
+  m.perms[mod] = !m.perms[mod];
+  save(); toast(`${m.name}: ${MODULES[mod].label} ${m.perms[mod]?'✓ enabled':'disabled'}`); renderPage();
+}
+
+function removeMember(id) {
+  const m = S.team.find(m=>m.id===id); if(!m) return;
+  if (!confirm(`Remove "${m.name}" from the team?\n\nThey will lose login access. Their tasks will remain.`)) return;
+  S.team.splice(S.team.findIndex(m=>m.id===id), 1);
+  rebuildMaps(); save(); toast(`${m.name} removed`); renderPage();
+}
+
+function openAssignTask(mid) {
+  const m = S.team.find(m=>m.id===mid); if(!m) return;
+  if (!S.projects.length) { alert('Create a project first.'); return; }
+  const po = S.projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  showModal(`<div class="modal-title">Assign Task to ${esc(m.name)}</div>
+    <div class="fg"><label class="fl">Task Title *</label><input class="fi" id="ta-title" placeholder="e.g. Write homepage copy"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Project</label><select class="fi" id="ta-proj">${po}</select></div>
+      <div class="fg"><label class="fl">Due Date</label><input class="fi" id="ta-due" type="date"></div>
+    </div>
+    <div class="fg"><label class="fl">Priority</label><select class="fi" id="ta-pri"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fi" id="ta-notes"></textarea></div>
+    <input type="hidden" id="ta-assign" value="${mid}">
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveTask()">Assign</button></div>`);
+}
+
+function openAddMember() {
+  const mods = Object.keys(MODULES);
+  showModal(`<div class="modal-title">Add Team Member</div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Full Name *</label><input class="fi" id="mm-name" placeholder="e.g. Anika Sharma"></div>
+      <div class="fg"><label class="fl">Role</label><input class="fi" id="mm-role" placeholder="e.g. Graphic Designer"></div>
+      <div class="fg"><label class="fl">Email * (used to log in)</label><input class="fi" id="mm-email" type="email" placeholder="anika@agency.co"></div>
+      <div class="fg"><label class="fl">Initials (2–3 chars)</label><input class="fi" id="mm-id" maxlength="3" placeholder="AS"></div>
+      <div class="fg"><label class="fl">Password *</label><div class="pw-wrap"><input class="fi" id="mm-p1" type="password" placeholder="Min 6 characters"><span class="pw-eye" onclick="toggleEye('mm-p1',this)">👁</span></div></div>
+      <div class="fg"><label class="fl">Confirm Password *</label><input class="fi" id="mm-p2" type="password"></div>
+    </div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#888;margin-bottom:8px">Module Access</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:1rem">
+      ${mods.map(k=>`<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;border:1px solid rgba(0,0,0,.09);cursor:pointer;background:#fafaf9">
+        <input type="checkbox" id="mp-${k}" ${DEFAULT_PERMS[k]?'checked':''} style="accent-color:#7c3aed;width:14px;height:14px">
+        <span style="font-size:11px">${MODULES[k].label}</span>
+      </label>`).join('')}
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveMember()">Add Member</button></div>`);
+}
+
+async function saveMember() {
+  const name  = document.getElementById('mm-name').value.trim();  if (!name)  { alert('Name required.'); return; }
+  const email = document.getElementById('mm-email').value.trim().toLowerCase(); if (!email) { alert('Email required.'); return; }
+  const p1    = document.getElementById('mm-p1').value;
+  const p2    = document.getElementById('mm-p2').value;
+  if (p1.length < 6)  { alert('Password must be at least 6 characters.'); return; }
+  if (p1 !== p2)      { alert('Passwords do not match.'); return; }
+  if (S.team.find(m=>(m.email||'').toLowerCase()===email) || email===S.adminEmail.toLowerCase()) {
+    alert('This email is already in use.'); return;
+  }
+  const rawId = document.getElementById('mm-id').value.trim().toUpperCase() || mkInit(name);
+  const mid   = rawId.slice(0,3);
+  if (S.team.find(m=>m.id===mid)) { alert(`Initials "${mid}" already in use. Choose different initials.`); return; }
+  const perms = {};
+  Object.keys(MODULES).forEach(k => { perms[k] = document.getElementById(`mp-${k}`)?.checked || false; });
+  S.team.push({
+    id:mid, name, email, role:document.getElementById('mm-role').value.trim()||'Team Member',
+    avClass:avClass(S.team.length), perms, pwdHash:await hashPwd(p1)
+  });
+  rebuildMaps(); save();
+  logAct('client', `Team member <b>${esc(name)}</b> added`, '👤');
+  toast(`${name} added ✓`); closeModal(); renderPage();
+}
+
+function openEditMember(id) {
+  const m = S.team.find(m=>m.id===id); if(!m) return;
+  showModal(`<div class="modal-title">Edit — ${esc(m.name)}</div>
+    <div class="fg"><label class="fl">Full Name *</label><input class="fi" id="em-name" value="${esc(m.name)}"></div>
+    <div class="fg"><label class="fl">Role</label><input class="fi" id="em-role" value="${esc(m.role||'')}"></div>
+    <div class="fg"><label class="fl">Email</label><input class="fi" id="em-email" type="email" value="${esc(m.email||'')}"></div>
+    <div style="border-top:.5px solid #eee;padding-top:.875rem;margin:.875rem 0">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:8px">Reset Password (leave blank to keep current)</div>
+      <div class="g2">
+        <div class="fg"><label class="fl">New Password</label><div class="pw-wrap"><input class="fi" id="em-p1" type="password" placeholder="Min 6 chars"><span class="pw-eye" onclick="toggleEye('em-p1',this)">👁</span></div></div>
+        <div class="fg"><label class="fl">Confirm</label><input class="fi" id="em-p2" type="password"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="updateMember('${id}')">Save</button></div>`);
+}
+
+async function updateMember(id) {
+  const m = S.team.find(m=>m.id===id); if(!m) return;
+  m.name = document.getElementById('em-name').value.trim() || m.name;
+  m.role = document.getElementById('em-role').value.trim() || m.role;
+  const ne = document.getElementById('em-email').value.trim().toLowerCase();
+  if (ne && ne !== (m.email||'').toLowerCase()) {
+    if (S.team.find(t=>t.id!==id&&(t.email||'').toLowerCase()===ne)||ne===S.adminEmail.toLowerCase()) {
+      alert('Email already in use.'); return;
+    }
+    m.email = ne;
+  }
+  const p1 = document.getElementById('em-p1').value;
+  if (p1) {
+    if (p1.length < 6)                                 { alert('Min 6 chars.'); return; }
+    if (p1 !== document.getElementById('em-p2').value) { alert('Passwords do not match.'); return; }
+    m.pwdHash = await hashPwd(p1);
+  }
+  rebuildMaps(); save(); toast(`${m.name} updated ✓`); closeModal(); renderPage();
+}
+
+
+// ================================================================
+// BBC AGENCY OS — module-leads.js
+// Lead pipeline, follow-ups, stage management
+// ================================================================
+function pgLeads(c, a) {
+  a.innerHTML = `<button class="btn btn-primary" onclick="openAddLead()">+ New Lead</button>`;
+  const pipeHTML = LEAD_STAGES.map(st => {
+    const cnt = S.leads.filter(l=>l.stage===st).length;
+    return `<div style="text-align:center;padding:10px 8px;background:#fff;border-radius:8px;border:.5px solid #eee;min-width:75px">
+      <div style="font-size:18px;font-weight:700;color:${STAGE_COLOR[st]}">${cnt}</div>
+      <div style="font-size:10px;color:#888;margin-top:2px">${st}</div>
+    </div>`;
+  }).join('');
+  c.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:1.5rem">${pipeHTML}</div>
+    ${!S.leads.length
+      ? emptyState('No leads yet','Track every prospect from first contact to onboarding','openAddLead()','+ New Lead')
+      : `<div id="lead-list">${S.leads.map(l=>leadCard(l)).join('')}</div>`}`;
+}
+
+function leadCard(l) {
+  const ex = !!S.expandedLeads[l.id];
+  const quotes = S.quotations.filter(q=>q.leadId===l.id);
+  const fuPending = l.followupAt && !l.followupDone && new Date(l.followupAt) < new Date() && !['Onboarded','Lost','Rejected'].includes(l.stage);
+  return `<div class="lead-card">
+    <div class="lead-hd" onclick="toggleLeadExpand('${l.id}')">
+      <span style="font-size:11px;color:#bbb;width:18px">${ex?'▾':'▸'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.title)}</div>
+        ${l.company ? `<div style="font-size:11px;color:#888">${esc(l.company)}</div>` : ''}
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+        ${l.value ? `<span style="font-size:12px;font-weight:600">${fmtINR(l.value)}</span>` : ''}
+        <span class="badge ${STAGE_BADGE[l.stage]||'b-gray'}">${l.stage}</span>
+        ${fuPending ? `<span class="badge b-purple">📞 Follow-up</span>` : ''}
+        <button class="btn btn-sm" onclick="event.stopPropagation();openEditLead('${l.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteLead('${l.id}')">✕</button>
+      </div>
+    </div>
+    ${ex ? `<div class="lead-body">
+      <!-- Stage pipeline -->
+      <div class="lead-pipe">
+        ${LEAD_STAGES.map(st=>{const idx=LEAD_STAGES.indexOf(st),ci=LEAD_STAGES.indexOf(l.stage);return `<div class="lead-stage ${st===l.stage?'cur':idx<ci?'past':''}" onclick="setLeadStage('${l.id}','${st}')">${st}</div>`;}).join('')}
+      </div>
+      <!-- Details grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:1rem">
+        ${[['Contact',l.contact||'—'],['Phone',l.phone||'—'],['Email',l.email||'—'],['Est. Value',l.value?fmtINR(l.value):'—'],['Stage',l.stage],['Created',fmtDate(l.createdAt)]].map(([k,v])=>`<div>
+          <div style="font-size:10px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">${k}</div>
+          <div style="font-size:12px">${esc(String(v))}</div>
+        </div>`).join('')}
+        ${l.services&&l.services.length ? `<div style="grid-column:1/-1">
+          <div style="font-size:10px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">Services Interested In</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px">${l.services.map(s=>`<span class="badge b-purple">${esc(s)}</span>`).join('')}</div>
+        </div>` : ''}
+        ${l.notes ? `<div style="grid-column:1/-1">
+          <div style="font-size:10px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Notes</div>
+          <div style="font-size:12px;background:#f4f3f0;border-radius:6px;padding:8px 10px">${esc(l.notes)}</div>
+        </div>` : ''}
+        ${l.lostReason ? `<div style="grid-column:1/-1">
+          <div style="font-size:10px;color:#c0392b;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Lost / Rejected Reason</div>
+          <div style="font-size:12px;color:#c0392b">${esc(l.lostReason)}</div>
+        </div>` : ''}
+      </div>
+      <!-- Quotations -->
+      <div style="background:#f8f7f5;border-radius:8px;padding:12px;margin-bottom:1rem">
+        <div style="font-size:11px;font-weight:700;margin-bottom:8px">Quotations (${quotes.length})</div>
+        ${quotes.map(q=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:.5px solid rgba(0,0,0,.06)">
+          <span style="font-size:12px;font-weight:600;min-width:65px">${esc(q.quoteNo)}</span>
+          <span style="font-size:12px;flex:1">${(q.items||[]).length} items</span>
+          <span style="font-size:12px;font-weight:600">${fmtINR(q.total)}</span>
+          <span class="badge ${q.status==='accepted'?'b-green':q.status==='sent'?'b-blue':q.status==='rejected'?'b-red':'b-gray'}">${q.status}</span>
+          <button class="btn btn-sm" onclick="openViewQuote('${q.id}')">View</button>
+        </div>`).join('') || `<div style="font-size:12px;color:#888">No quotations yet</div>`}
+        <button class="btn btn-sm btn-purple" onclick="openCreateQuote('${l.id}')" style="margin-top:8px">+ Create Quote</button>
+      </div>
+      <!-- Follow-up -->
+      <div style="background:#f3e8ff;border-radius:8px;padding:12px">
+        <div style="font-size:11px;font-weight:700;color:#6d28d9;margin-bottom:8px">📞 Follow-up</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+          <div>
+            <div style="font-size:10px;color:#888;margin-bottom:3px">Date & Time</div>
+            <div style="font-size:13px;font-weight:600;color:#6d28d9">${l.followupAt ? fmtDT(new Date(l.followupAt)) : 'Not set'}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:#888;margin-bottom:3px">Phone</div>
+            <div style="font-size:12px">${esc(l.followupPhone||'—')}</div>
+          </div>
+          ${l.followupNote ? `<div style="grid-column:1/-1">
+            <div style="font-size:10px;color:#888;margin-bottom:3px">Agenda</div>
+            <div style="font-size:12px">${esc(l.followupNote)}</div>
+          </div>` : ''}
+        </div>
+        <button class="btn btn-sm btn-purple" onclick="openFollowup('${l.id}')">Set / Update Follow-up</button>
+        ${l.followupAt && !l.followupDone ? `<button class="btn btn-sm" style="margin-left:6px;background:#e8f5e9;color:#2e7d32;border-color:#b2dfdb" onclick="markFollowupDone('${l.id}')">✓ Mark Done</button>` : ''}
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+function toggleLeadExpand(id) {
+  S.expandedLeads[id] = !S.expandedLeads[id];
+  const ll = document.getElementById('lead-list');
+  if (ll) ll.innerHTML = S.leads.map(l=>leadCard(l)).join('');
+}
+
+function setLeadStage(id, stage) {
+  const l = S.leads.find(l=>l.id===id); if(!l) return;
+  l.stage = stage; save();
+  logAct('lead', `Lead "<b>${esc(l.title)}</b>" → <b>${stage}</b>`, '→');
+  const ll = document.getElementById('lead-list');
+  if (ll) ll.innerHTML = S.leads.map(l=>leadCard(l)).join('');
+  // refresh pipeline counts
+  pgLeads(document.getElementById('pg-content'), document.getElementById('pg-actions'));
+}
+
+function deleteLead(id) {
+  const l = S.leads.find(l=>l.id===id);
+  if (!l || !confirm(`Delete lead "${l.title}"?`)) return;
+  S.leads.splice(S.leads.findIndex(l=>l.id===id), 1);
+  save(); renderPage();
+}
+
+function openAddLead() {
+  const svcs = allServices();
+  const svcOpts = svcs.map(s=>`<option value="${esc(s.name)}">[${s.code}] ${esc(s.name)}</option>`).join('');
+  showModal(`<div class="modal-title">New Lead</div>
+    <div class="g2">
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Lead Title / Name *</label><input class="fi" id="l-title" placeholder="e.g. Nimisha — Social Media"></div>
+      <div class="fg"><label class="fl">Company</label><input class="fi" id="l-co" placeholder="Company name"></div>
+      <div class="fg"><label class="fl">Contact Person</label><input class="fi" id="l-contact"></div>
+      <div class="fg"><label class="fl">Phone</label><input class="fi" id="l-phone" placeholder="+91 ..."></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="l-email" type="email"></div>
+      <div class="fg"><label class="fl">Est. Value (₹)</label><input class="fi" id="l-value" type="number" placeholder="0"></div>
+      <div class="fg"><label class="fl">Stage</label><select class="fi" id="l-stage">${LEAD_STAGES.map(s=>`<option>${s}</option>`).join('')}</select></div>
+    </div>
+    <div class="fg"><label class="fl">Services Interested In</label>
+      <select class="fi" id="l-svcs" multiple style="height:90px">${svcOpts}</select>
+      <div style="font-size:10px;color:#888;margin-top:3px">Hold Cmd/Ctrl to select multiple</div>
+    </div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fi" id="l-notes" placeholder="Source, context, requirements..."></textarea></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveLead()">Add Lead</button></div>`);
+}
+
+function saveLead() {
+  const title = document.getElementById('l-title').value.trim();
+  if (!title) { alert('Title required.'); return; }
+  const svcs = Array.from(document.getElementById('l-svcs').selectedOptions).map(o=>o.value);
+  S.leads.push({
+    id:uid(), title,
+    company:  document.getElementById('l-co').value.trim(),
+    contact:  document.getElementById('l-contact').value.trim(),
+    phone:    document.getElementById('l-phone').value.trim(),
+    email:    document.getElementById('l-email').value.trim(),
+    value:    Number(document.getElementById('l-value').value)||0,
+    stage:    document.getElementById('l-stage').value,
+    notes:    document.getElementById('l-notes').value.trim(),
+    services: svcs, createdAt: new Date().toISOString()
+  });
+  save(); logAct('lead', `New lead: <b>${esc(title)}</b>`, '★');
+  toast(`Lead "${title}" added`); closeModal(); renderPage();
+}
+
+function openEditLead(id) {
+  const l = S.leads.find(l=>l.id===id); if(!l) return;
+  const svcs = allServices();
+  const svcOpts = svcs.map(s=>`<option value="${esc(s.name)}" ${(l.services||[]).includes(s.name)?'selected':''}>[${s.code}] ${esc(s.name)}</option>`).join('');
+  const showLost = ['Lost','Rejected'].includes(l.stage);
+  showModal(`<div class="modal-title">Edit Lead — ${esc(l.title)}</div>
+    <div class="g2">
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Title *</label><input class="fi" id="l-title" value="${esc(l.title)}"></div>
+      <div class="fg"><label class="fl">Company</label><input class="fi" id="l-co" value="${esc(l.company||'')}"></div>
+      <div class="fg"><label class="fl">Contact</label><input class="fi" id="l-contact" value="${esc(l.contact||'')}"></div>
+      <div class="fg"><label class="fl">Phone</label><input class="fi" id="l-phone" value="${esc(l.phone||'')}"></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="l-email" value="${esc(l.email||'')}"></div>
+      <div class="fg"><label class="fl">Est. Value (₹)</label><input class="fi" id="l-value" type="number" value="${l.value||0}"></div>
+      <div class="fg"><label class="fl">Stage</label><select class="fi" id="l-stage">${LEAD_STAGES.map(s=>`<option ${l.stage===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    </div>
+    <div class="fg"><label class="fl">Services</label><select class="fi" id="l-svcs" multiple style="height:90px">${svcOpts}</select></div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fi" id="l-notes">${esc(l.notes||'')}</textarea></div>
+    ${showLost ? `<div class="fg"><label class="fl">Lost / Rejected Reason</label><input class="fi" id="l-lost" value="${esc(l.lostReason||'')}"></div>` : ''}
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="updateLead('${id}')">Save</button></div>`);
+}
+
+function updateLead(id) {
+  const l = S.leads.find(l=>l.id===id); if(!l) return;
+  l.title   = document.getElementById('l-title').value.trim()   || l.title;
+  l.company = document.getElementById('l-co').value.trim();
+  l.contact = document.getElementById('l-contact').value.trim();
+  l.phone   = document.getElementById('l-phone').value.trim();
+  l.email   = document.getElementById('l-email').value.trim();
+  l.value   = Number(document.getElementById('l-value').value)||0;
+  l.stage   = document.getElementById('l-stage').value;
+  l.notes   = document.getElementById('l-notes').value.trim();
+  l.services= Array.from(document.getElementById('l-svcs').selectedOptions).map(o=>o.value);
+  const lr  = document.getElementById('l-lost'); if (lr) l.lostReason = lr.value.trim();
+  save(); logAct('lead', `Lead "<b>${esc(l.title)}</b>" updated`, '✎');
+  toast('Lead updated ✓'); closeModal(); renderPage();
+}
+
+function openFollowup(id) {
+  const l = S.leads.find(l=>l.id===id); if(!l) return;
+  const cur = l.followupAt ? new Date(l.followupAt).toISOString().slice(0,16) : '';
+  showModal(`<div class="modal-title">Set Follow-up — ${esc(l.title)}</div>
+    <div class="fg"><label class="fl">Date & Time *</label><input class="fi" id="fu-dt" type="datetime-local" value="${cur}"></div>
+    <div class="fg"><label class="fl">Phone</label><input class="fi" id="fu-ph" value="${esc(l.followupPhone||l.phone||'')}"></div>
+    <div class="fg"><label class="fl">Agenda / Note</label><textarea class="fi" id="fu-note">${esc(l.followupNote||'')}</textarea></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-purple" onclick="saveFollowup('${id}')">Save Follow-up</button></div>`);
+}
+
+function saveFollowup(id) {
+  const l  = S.leads.find(l=>l.id===id); if(!l) return;
+  const dt = document.getElementById('fu-dt').value;
+  l.followupAt    = dt ? new Date(dt).toISOString() : '';
+  l.followupPhone = document.getElementById('fu-ph').value.trim();
+  l.followupNote  = document.getElementById('fu-note').value.trim();
+  l.followupDone  = false; // reset so it appears in alerts again
+  save(); logAct('lead', `Follow-up set for "<b>${esc(l.title)}</b>" — ${fmtDT(l.followupAt)}`, '📞');
+  toast('Follow-up saved ✓'); closeModal(); renderPage();
+}
+
+
+// ================================================================
+// BBC AGENCY OS — module-quotations.js
+// Create, view, print quotations linked to leads
+// ================================================================
+
+function pgQuotations(c, a) {
+  a.innerHTML = `<button class="btn btn-primary" onclick="openCreateQuote(null)">+ New Quotation</button>`;
+  if (!S.quotations.length) {
+    c.innerHTML = emptyState('No quotations yet','Create quotes from leads or directly here','openCreateQuote(null)','+ New Quotation');
+    return;
+  }
+  c.innerHTML = `<div class="card"><table>
+    <thead><tr>
+      <th>Quote No</th><th>Lead / Client</th><th>Items</th>
+      <th style="text-align:right">Total</th><th>Status</th><th>Created</th><th></th>
+    </tr></thead>
+    <tbody>
+      ${S.quotations.map(q=>`<tr>
+        <td style="font-weight:700">${esc(q.quoteNo)}</td>
+        <td>${esc(q.clientName||q.leadTitle||'—')}</td>
+        <td style="color:#888">${(q.items||[]).length} item${(q.items||[]).length!==1?'s':''}</td>
+        <td style="font-weight:700;text-align:right">${fmtINR(q.total)}</td>
+        <td><span class="badge ${q.status==='accepted'?'b-green':q.status==='sent'?'b-blue':q.status==='rejected'?'b-red':'b-gray'}">${q.status}</span></td>
+        <td style="color:#888">${fmtDate(q.createdAt)}</td>
+        <td>
+          <div style="display:flex;gap:5px;justify-content:flex-end;align-items:center">
+            <button class="btn btn-sm" onclick="openViewQuote('${q.id}')">Preview</button>
+            <button class="btn btn-sm btn-purple" onclick="printQuote('${q.id}')">PDF</button>
+            <select class="fi" onchange="updateQStatus('${q.id}',this.value)" style="width:auto;padding:3px 8px;font-size:11px">
+              ${['draft','sent','accepted','rejected'].map(s=>`<option ${q.status===s?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </div>
+        </td>
+      </tr>`).join('')}
+    </tbody>
+  </table></div>`;
+}
+
+function openCreateQuote(leadId) {
+  _qri = 0;
+  const lead   = leadId ? S.leads.find(l=>l.id===leadId) : null;
+  const svcs   = allServices();
+  const lo     = S.leads.map(l=>`<option value="${l.id}" ${lead&&lead.id===l.id?'selected':''}>${esc(l.title)}</option>`).join('');
+  const initSvcs = lead && lead.services && lead.services.length ? lead.services : [];
+  const initRows = initSvcs.length
+    ? initSvcs.map(sn => { const sv=svcs.find(s=>s.name===sn); return qRow(_qri++, sn, sv?sv.price:0, 0, 1); }).join('')
+    : qRow(_qri++, '', 0, 0, 1);
+
+  showModal(`<div class="modal-title">${lead ? `Create Quote — ${esc(lead.title)}` : 'New Quotation'}</div>
+    <div class="fg"><label class="fl">Linked Lead</label>
+      <select class="fi" id="q-lead" onchange="qPrefillLead()">
+        <option value="">— No linked lead —</option>${lo}
+      </select>
+    </div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Client / Company *</label><input class="fi" id="q-client" value="${lead?esc(lead.company||lead.title):''}"></div>
+      <div class="fg"><label class="fl">Contact Person</label><input class="fi" id="q-contact" value="${lead?esc(lead.contact||''):''}"></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="q-email" type="email" value="${lead?esc(lead.email||''):''}"></div>
+      <div class="fg"><label class="fl">Phone</label><input class="fi" id="q-phone" value="${lead?esc(lead.phone||''):''}"></div>
+      <div class="fg"><label class="fl">Valid Until</label><input class="fi" id="q-valid" type="date"></div>
+      <div class="fg"><label class="fl">Payment Terms</label><input class="fi" id="q-terms" value="50% advance, 50% on delivery"></div>
+    </div>
+    <div class="fg"><label class="fl">Scope / Introduction</label><textarea class="fi" id="q-scope" style="min-height:60px">${lead&&lead.notes?esc(lead.notes):''}</textarea></div>
+    <div style="margin-bottom:8px">
+      <div class="qrow-hd"><span>Service</span><span>Rate (₹)</span><span>Qty</span><span>Disc %</span><span>Net (₹)</span><span></span></div>
+      <div id="q-rows">${initRows}</div>
+    </div>
+    <button class="btn btn-sm" onclick="addQRow()" style="margin-bottom:1rem">+ Add Line Item</button>
+    <div class="g2">
+      <div class="fg"><label class="fl">GST %</label><input class="fi" id="q-gst" type="number" value="18" oninput="calcQTotal()"></div>
+      <div></div>
+    </div>
+    <div style="background:#f4f3f0;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:.875rem" id="q-total">Subtotal: ₹0</div>
+    <div class="fg"><label class="fl">Notes / Terms & Conditions</label><textarea class="fi" id="q-notes" placeholder="Revisions policy, content to be provided by client, timelines..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveQuote()">Save Quotation</button>
+    </div>`);
+  setTimeout(calcQTotal, 50);
+}
+
+function qRow(i, svcName, rate, disc, qty) {
+  const svcs = allServices();
+  const opts = svcs.map(s=>`<option value="${esc(s.name)}" data-price="${s.price}" ${s.name===svcName?'selected':''}>${esc(s.name)} (${fmtINR(s.price)})</option>`).join('');
+  return `<div class="qrow" id="qrow-${i}">
+    <select class="fi" id="qs-${i}" onchange="onQSvcChange(${i})" style="font-size:11px">
+      <option value="">— Select service —</option>${opts}
+    </select>
+    <input class="fi" id="qr-${i}" type="number" placeholder="Rate ₹" value="${rate||''}" oninput="calcQTotal()" style="font-size:12px">
+    <input class="fi" id="qq-${i}" type="number" placeholder="Qty" value="${qty||1}" min="1" oninput="calcQTotal()" style="font-size:12px">
+    <input class="fi" id="qd-${i}" type="number" placeholder="0%" value="${disc||0}" min="0" max="100" oninput="calcQTotal()" style="font-size:12px;${disc>0?'background:#fffde7':''}">
+    <input class="fi" id="qn-${i}" type="number" readonly style="font-size:12px;background:#f4f3f0">
+    <button class="btn btn-danger btn-sm" onclick="document.getElementById('qrow-${i}').remove();calcQTotal()" style="padding:4px 7px">✕</button>
+  </div>`;
+}
+
+function addQRow() {
+  const c = document.getElementById('q-rows'); if(!c) return;
+  const d = document.createElement('div');
+  d.innerHTML = qRow(_qri, '', 0, 0, 1);
+  c.appendChild(d.firstElementChild);
+  _qri++; calcQTotal();
+}
+
+function onQSvcChange(i) {
+  const sel = document.getElementById(`qs-${i}`); if(!sel) return;
+  const opt = sel.options[sel.selectedIndex];
+  const price = opt ? opt.getAttribute('data-price') : 0;
+  const r = document.getElementById(`qr-${i}`); if(r) r.value = price || '';
+  calcQTotal();
+}
+
+function calcQTotal() {
+  let sub = 0, discTotal = 0;
+  for (let i = 0; i <= _qri + 5; i++) {
+    const r = document.getElementById(`qr-${i}`);
+    const q = document.getElementById(`qq-${i}`);
+    const d = document.getElementById(`qd-${i}`);
+    const n = document.getElementById(`qn-${i}`);
+    if (!r) continue;
+    const rate = Number(r.value)||0;
+    const qty  = Number(q?.value)||1;
+    const dp   = Number(d?.value)||0;
+    const gross= rate * qty;
+    const da   = Math.round(gross * dp / 100);
+    const net  = gross - da;
+    if (n) n.value = Math.round(net) || '';
+    if (d) d.style.background = dp > 0 ? '#fffde7' : '';
+    sub      += gross;
+    discTotal+= da;
+  }
+  const net    = sub - discTotal;
+  const gstPct = Number(document.getElementById('q-gst')?.value)||0;
+  const gstAmt = Math.round(net * gstPct / 100);
+  const total  = Math.round(net + gstAmt);
+  const tb = document.getElementById('q-total');
+  if (tb) tb.innerHTML = `
+    <span style="margin-right:12px">Subtotal: <b>${fmtINR(Math.round(sub))}</b></span>
+    ${discTotal>0?`<span style="margin-right:12px;color:#2e7d32">Discount: <b>−${fmtINR(Math.round(discTotal))}</b></span>`:''}
+    <span style="margin-right:12px">GST (${gstPct}%): <b>${fmtINR(gstAmt)}</b></span>
+    <b style="font-size:15px">Grand Total: ${fmtINR(total)}</b>`;
+}
+
+function qPrefillLead() {
+  const sel = document.getElementById('q-lead'); if(!sel) return;
+  const l = S.leads.find(l=>l.id===sel.value); if(!l) return;
+  const set = (id, val) => { const el=document.getElementById(id); if(el) el.value=val; };
+  set('q-client', l.company||l.title);
+  set('q-contact', l.contact||'');
+  set('q-email', l.email||'');
+  set('q-phone', l.phone||'');
+}
+
+function getQItems() {
+  const items = [];
+  for (let i = 0; i <= _qri + 5; i++) {
+    const sv = document.getElementById(`qs-${i}`);
+    const ra = document.getElementById(`qr-${i}`);
+    const qq = document.getElementById(`qq-${i}`);
+    const dc = document.getElementById(`qd-${i}`);
+    if (!ra) continue;
+    const svc = sv?.value, rate = Number(ra.value)||0;
+    if (!svc && !rate) continue;
+    const qty   = Number(qq?.value)||1;
+    const dp    = Number(dc?.value)||0;
+    const gross = rate * qty;
+    const da    = Math.round(gross * dp / 100);
+    const net   = Math.round(gross - da);
+    items.push({ service:svc||'Custom', rate, qty, discPct:dp, discAmt:da, gross:Math.round(gross), net });
+  }
+  return items;
+}
+
+function saveQuote() {
+  const client = document.getElementById('q-client')?.value.trim();
+  if (!client) { alert('Client name required.'); return; }
+  const items = getQItems();
+  if (!items.length) { alert('Add at least one service line item.'); return; }
+
+  const leadId = document.getElementById('q-lead')?.value || '';
+  const lead   = S.leads.find(l=>l.id===leadId);
+  const sub    = items.reduce((s,i)=>s+i.gross, 0);
+  const totDisc= items.reduce((s,i)=>s+i.discAmt, 0);
+  const net    = sub - totDisc;
+  const gstPct = Number(document.getElementById('q-gst')?.value)||0;
+  const gstAmt = Math.round(net * gstPct / 100);
+  const total  = Math.round(net + gstAmt);
+  const qNo    = 'QT-' + String(S.quotations.length + 1).padStart(3,'0');
+
+  const q = {
+    id:uid(), quoteNo:qNo, leadId, leadTitle:lead?lead.title:'',
+    clientName:client,
+    contactName: document.getElementById('q-contact')?.value.trim()||'',
+    email:       document.getElementById('q-email')?.value.trim()||'',
+    phone:       document.getElementById('q-phone')?.value.trim()||'',
+    validUntil:  document.getElementById('q-valid')?.value||'',
+    terms:       document.getElementById('q-terms')?.value.trim()||'',
+    scope:       document.getElementById('q-scope')?.value.trim()||'',
+    addNotes:    document.getElementById('q-notes')?.value.trim()||'',
+    items, subtotal:sub, totalDiscount:totDisc, netTotal:net,
+    gstPct, gstAmt, total,
+    status:'draft', createdAt:new Date().toISOString()
+  };
+
+  S.quotations.push(q);
+  if (lead) {
+    if (!lead.quotations) lead.quotations = [];
+    lead.quotations.push(q.id);
+    if (total > 0 && !lead.value) lead.value = total;
+  }
+
+  save();
+  logAct('lead', `Quotation <b>${qNo}</b> created for <b>${esc(client)}</b>`, '📄');
+  toast(`${qNo} saved ✓`);
+  closeModal();
+  S.page = 'quotations';
+  renderPage();
+}
+
+function updateQStatus(id, status) {
+  const q = S.quotations.find(q=>q.id===id); if(!q) return;
+  q.status = status; save(); renderPage();
+}
+
+// ── QUOTE HTML (used for preview and PDF print) ──────────────────
+function quoteHTML(q) {
+  const rows = (q.items||[]).map(it=>`<tr>
+    <td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:12px">${esc(it.service)}</td>
+    <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-size:12px">${fmtINR(it.rate)}</td>
+    <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-size:12px">${it.qty}</td>
+    <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-size:12px;color:${it.discPct>0?'#2e7d32':'#888'}">${it.discPct>0?it.discPct+'%':'—'}</td>
+    <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-size:12px;font-weight:600">${fmtINR(it.net)}</td>
+  </tr>`).join('');
+
+  return `
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:2px solid #1a1a1a">
+    <div>
+      <div style="font-size:22px;font-weight:900;font-style:italic;color:#7c3aed">${esc(AGENCY_NAME)}</div>
+      <div style="font-size:11px;color:#888;margin-top:4px">${OWNER_EMAIL} · ${PHONE} · ${WEBSITE}</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.06em">Quotation</div>
+      <div style="font-size:16px;font-weight:700;color:#7c3aed">${esc(q.quoteNo)}</div>
+      <div style="font-size:11px;color:#888;margin-top:3px">Date: ${fmtDate(q.createdAt)}</div>
+      ${q.validUntil ? `<div style="font-size:11px;color:#888">Valid Till: ${fmtDate(q.validUntil)}</div>` : ''}
+    </div>
+  </div>
+  <div style="background:#f8f8f8;border-radius:8px;padding:14px;margin-bottom:1.5rem">
+    <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Prepared For</div>
+    <div style="font-size:15px;font-weight:700">${esc(q.clientName)}</div>
+    ${q.contactName ? `<div style="font-size:12px;color:#555;margin-top:2px">${esc(q.contactName)}</div>` : ''}
+    ${q.email ? `<div style="font-size:12px;color:#555">${esc(q.email)}</div>` : ''}
+    ${q.phone ? `<div style="font-size:12px;color:#555">${esc(q.phone)}</div>` : ''}
+  </div>
+  ${q.scope ? `<div style="margin-bottom:1.5rem">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.05em;margin-bottom:8px">Scope of Work</div>
+    <div style="font-size:13px;color:#444;line-height:1.7">${esc(q.scope)}</div>
+  </div>` : ''}
+  <table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem">
+    <thead>
+      <tr style="background:#1a1a1a;color:#fff">
+        <th style="padding:10px 12px;text-align:left;font-size:11px">Service / Deliverable</th>
+        <th style="padding:10px 12px;text-align:right;font-size:11px">Rate (₹)</th>
+        <th style="padding:10px 12px;text-align:center;font-size:11px">Qty</th>
+        <th style="padding:10px 12px;text-align:center;font-size:11px">Discount</th>
+        <th style="padding:10px 12px;text-align:right;font-size:11px">Net (₹)</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div style="display:flex;justify-content:flex-end;margin-bottom:1.5rem">
+    <div style="min-width:260px">
+      <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#888"><span>Subtotal</span><span>${fmtINR(q.subtotal)}</span></div>
+      ${q.totalDiscount>0 ? `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#2e7d32"><span>Total Discount</span><span>−${fmtINR(q.totalDiscount)}</span></div>` : ''}
+      <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#888"><span>GST (${q.gstPct}%)</span><span>${fmtINR(q.gstAmt)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:18px;font-weight:700;border-top:2px solid #1a1a1a;margin-top:4px"><span>Total</span><span>${fmtINR(q.total)}</span></div>
+    </div>
+  </div>
+  ${q.terms ? `<div style="border-top:1px solid #eee;padding-top:1rem;margin-bottom:1rem">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.05em;margin-bottom:6px">Payment Terms</div>
+    <div style="font-size:13px;color:#444">${esc(q.terms)}</div>
+  </div>` : ''}
+  ${q.addNotes ? `<div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.05em;margin-bottom:6px">Notes</div>
+    <div style="font-size:13px;color:#444">${esc(q.addNotes)}</div>
+  </div>` : ''}
+  <div style="margin-top:2rem;padding-top:1rem;border-top:1px solid #eee;font-size:11px;color:#aaa;text-align:center">
+    This quotation is valid for 15 days from the date of issue. ${esc(AGENCY_NAME)} · ${OWNER_EMAIL} · ${PHONE}
+  </div>`;
+}
+
+function openViewQuote(id) {
+  const q = S.quotations.find(q=>q.id===id); if(!q) return;
+  showModal(`<div class="modal-title">${esc(q.quoteNo)} — Preview</div>
+    <div style="font-family:-apple-system,sans-serif">${quoteHTML(q)}</div>
+    <div class="modal-footer no-print">
+      <button class="btn" onclick="closeModal()">Close</button>
+      <button class="btn btn-primary" onclick="printQuote('${q.id}')">Download / Print PDF</button>
+    </div>`);
+}
+
+function printQuote(id) {
+  const q = S.quotations.find(q=>q.id===id); if(!q) return;
+  const w = window.open('', '_blank');
+  const body = quoteHTML(q);
+  // Build print page — avoid script tags inside template literal
+  const printPage = [
+    '<!DOCTYPE html><html><head>',
+    '<meta charset="UTF-8">',
+    '<title>' + esc(q.quoteNo) + ' — ' + esc(q.clientName) + '</title>',
+    '<style>',
+    '*{box-sizing:border-box;margin:0;padding:0}',
+    'body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;padding:2.5rem;color:#1a1a1a;max-width:820px;margin:0 auto}',
+    '@media print{@page{margin:1.5cm}}',
+    '</style>',
+    '</head><body>',
+    body,
+    '</body></html>'
+  ].join('');
+  w.document.write(printPage);
+  w.document.close();
+  setTimeout(() => w.print(), 400);
+}
+
+
+// ================================================================
+// BBC AGENCY OS — module-services.js
+// Services catalog — admin only
+// Add, edit, delete services. Changes persist to Firebase.
+// Built-in services (services-data.js) can be overridden but not deleted.
+// ================================================================
+
+function pgServices(c, a) {
+  a.innerHTML = `<button class="btn btn-primary" onclick="openAddService()">+ Add Service</button>`;
+  const svcs = allServices();
+  const cats = svcCats();
+  c.innerHTML = `
+    <div style="margin-bottom:1rem;padding:10px 14px;background:#f3e8ff;border:.5px solid #d1b3ff;border-radius:8px;font-size:12px;color:#6d28d9">
+      <b>Services Catalog — Admin only.</b> Add, edit or delete services here.
+      Changes reflect instantly across Quotations and Lead forms.
+      Built-in services can be edited — your edits are saved to Firebase.
+    </div>
+    ${cats.map(cat => {
+      const catSvcs = svcs.filter(s=>s.cat===cat);
+      return `<div class="card" style="margin-bottom:1rem;padding:0;overflow:hidden">
+        <div class="cat-hd">
+          <span>${esc(cat)}</span>
+          <button class="btn btn-sm" onclick="openAddService('${esc(cat)}')" style="font-size:10px;margin-right:10px">+ Add to this category</button>
+        </div>
+        <table><thead><tr>
+          <th>Code</th><th>Service Name</th><th>Description</th>
+          <th>Unit</th><th style="text-align:right">Rate</th><th>HSN</th><th>GST</th><th>Type</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${catSvcs.map(s => {
+            const isCustom = !!(S.customServices||[]).find(cs=>cs.code===s.code);
+            return `<tr>
+              <td><code style="font-size:10px;background:#f4f3f0;padding:2px 5px;border-radius:4px">${esc(s.code)}</code></td>
+              <td style="font-weight:500;max-width:180px">${esc(s.name)}</td>
+              <td style="color:#888;font-size:11px;max-width:220px">${esc(s.desc)}</td>
+              <td><span class="badge b-gray">${esc(s.unit)}</span></td>
+              <td style="text-align:right;font-weight:600">${fmtINR(s.price)}</td>
+              <td style="color:#888;font-size:11px">${esc(s.hsn)}</td>
+              <td><span class="badge b-blue">${s.gst}%</span></td>
+              <td><span class="badge ${isCustom?'b-purple':'b-gray'}">${isCustom?'custom':'built-in'}</span></td>
+              <td style="white-space:nowrap;text-align:right">
+                <button class="btn btn-sm" onclick="openEditService('${esc(s.code)}')" style="margin-right:4px">✎ Edit</button>
+                ${isCustom ? `<button class="btn btn-danger btn-sm" onclick="deleteService('${esc(s.code)}')">✕</button>` : ''}
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody></table>
+      </div>`;
+    }).join('')}`;
+}
+
+function openAddService(prefillCat) {
+  const cats = svcCats();
+  showModal(`<div class="modal-title">Add New Service</div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Service Name *</label><input class="fi" id="sv-name" placeholder="e.g. Brand Audit"></div>
+      <div class="fg"><label class="fl">Item Code * (must be unique)</label><input class="fi" id="sv-code" placeholder="e.g. BRD05" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Description</label><textarea class="fi" id="sv-desc" style="min-height:56px" placeholder="What is included in this service..."></textarea></div>
+      <div class="fg"><label class="fl">Category</label>
+        <input class="fi" id="sv-cat" value="${esc(prefillCat||'')}" placeholder="e.g. Brand Strategy & Identity" list="sv-cat-opts">
+        <datalist id="sv-cat-opts">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+      </div>
+      <div class="fg"><label class="fl">Unit</label>
+        <select class="fi" id="sv-unit">
+          ${['OTHERS','MONTH','NUMBERS','SETS','SESSION'].map(u=>`<option>${u}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Rate ₹ (excl. GST) *</label><input class="fi" id="sv-price" type="number" placeholder="0"></div>
+      <div class="fg"><label class="fl">GST %</label>
+        <select class="fi" id="sv-gst">
+          <option value="18" selected>18%</option>
+          <option value="12">12%</option>
+          <option value="0">0% (Exempt)</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">HSN Code</label><input class="fi" id="sv-hsn" value="998361" placeholder="998361"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveNewService()">Add Service</button>
+    </div>`);
+}
+
+function saveNewService() {
+  const name  = document.getElementById('sv-name').value.trim();
+  const code  = document.getElementById('sv-code').value.trim().toUpperCase();
+  const cat   = document.getElementById('sv-cat').value.trim();
+  const price = Number(document.getElementById('sv-price').value)||0;
+  if (!name)  { alert('Service name is required.');  return; }
+  if (!code)  { alert('Item code is required.');      return; }
+  if (!cat)   { alert('Category is required.');       return; }
+  if (!price) { alert('Rate is required.');            return; }
+  if (allServices().find(s=>s.code===code)) { alert(`Code "${code}" is already in use. Choose a different code.`); return; }
+  if (!S.customServices) S.customServices = [];
+  S.customServices.push({
+    name, code, cat,
+    desc:  document.getElementById('sv-desc').value.trim(),
+    unit:  document.getElementById('sv-unit').value,
+    price, gst: Number(document.getElementById('sv-gst').value)||18,
+    hsn:   document.getElementById('sv-hsn').value.trim()||'998361'
+  });
+  save();
+  logAct('client', `Service <b>${esc(name)}</b> added to catalog`, '★');
+  toast(`"${name}" added ✓`); closeModal(); renderPage();
+}
+
+function openEditService(code) {
+  const s = allServices().find(s=>s.code===code); if(!s) return;
+  const cats = svcCats();
+  showModal(`<div class="modal-title">Edit Service — <code>${esc(s.code)}</code></div>
+    <div style="background:#fff8e1;border:.5px solid #ffe082;border-radius:7px;padding:8px 12px;font-size:11px;color:#f57f17;margin-bottom:1rem">
+      Editing a built-in service saves your version to Firebase and overrides the default for everyone.
+    </div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Service Name *</label><input class="fi" id="sv-name" value="${esc(s.name)}"></div>
+      <div class="fg"><label class="fl">Item Code (read-only)</label><input class="fi" value="${esc(s.code)}" readonly style="background:#f4f3f0;color:#888"></div>
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Description</label><textarea class="fi" id="sv-desc" style="min-height:56px">${esc(s.desc)}</textarea></div>
+      <div class="fg"><label class="fl">Category</label>
+        <input class="fi" id="sv-cat" value="${esc(s.cat)}" list="sv-cat-opts2">
+        <datalist id="sv-cat-opts2">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+      </div>
+      <div class="fg"><label class="fl">Unit</label>
+        <select class="fi" id="sv-unit">${['OTHERS','MONTH','NUMBERS','SETS','SESSION'].map(u=>`<option ${s.unit===u?'selected':''}>${u}</option>`).join('')}</select>
+      </div>
+      <div class="fg"><label class="fl">Rate ₹ (excl. GST) *</label><input class="fi" id="sv-price" type="number" value="${s.price}"></div>
+      <div class="fg"><label class="fl">GST %</label>
+        <select class="fi" id="sv-gst">${[18,12,0].map(g=>`<option value="${g}" ${s.gst===g?'selected':''}>${g}%</option>`).join('')}</select>
+      </div>
+      <div class="fg"><label class="fl">HSN Code</label><input class="fi" id="sv-hsn" value="${esc(s.hsn)}"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditService('${esc(code)}')">Save Changes</button>
+    </div>`);
+}
+
+function saveEditService(code) {
+  const name  = document.getElementById('sv-name').value.trim();
+  const cat   = document.getElementById('sv-cat').value.trim();
+  const price = Number(document.getElementById('sv-price').value)||0;
+  if (!name || !cat || !price) { alert('Name, category and rate are required.'); return; }
+  if (!S.customServices) S.customServices = [];
+  // Remove existing custom entry for this code (if any), then push updated
+  S.customServices = S.customServices.filter(s=>s.code!==code);
+  S.customServices.push({
+    name, code, cat,
+    desc:  document.getElementById('sv-desc').value.trim(),
+    unit:  document.getElementById('sv-unit').value,
+    price, gst: Number(document.getElementById('sv-gst').value)||18,
+    hsn:   document.getElementById('sv-hsn').value.trim()||'998361'
+  });
+  save();
+  logAct('client', `Service <b>${esc(name)}</b> updated`, '✎');
+  toast(`"${name}" updated ✓`); closeModal(); renderPage();
+}
+
+function deleteService(code) {
+  const s = allServices().find(s=>s.code===code); if(!s) return;
+  if (!confirm(`Delete "${s.name}"?\n\nThis cannot be undone.`)) return;
+  S.customServices = (S.customServices||[]).filter(cs=>cs.code!==code);
+  save(); toast(`"${s.name}" deleted`); renderPage();
+}
+
+
+// ================================================================
+// BBC AGENCY OS — module-clients-invoices.js
+// Clients CRM + Invoices
+// ================================================================
+
+// ── CLIENTS ─────────────────────────────────────────────────────
+function pgClients(c, a) {
+  a.innerHTML = `<button class="btn btn-primary" onclick="openAddClient()">+ New Client</button>`;
+  if (!S.clients.length) { c.innerHTML = emptyState('No clients yet','Add your first client to start creating projects and invoices','openAddClient()','+ New Client'); return; }
+  c.innerHTML = `<div class="g3">${S.clients.map(cl=>`<div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:.875rem">
+      <div class="av ${cl.avClass||'av-a'}" style="width:36px;height:36px;border-radius:9px;font-size:13px">${esc(cl.initials||'?')}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cl.name)}</div>
+        <div style="font-size:11px;color:#888">${esc(cl.industry||'—')}</div>
+      </div>
+      <span class="badge ${cl.status==='active'?'b-green':'b-amber'}">${cl.status}</span>
+    </div>
+    <div style="border-top:.5px solid rgba(0,0,0,.06);padding-top:.75rem;display:grid;gap:5px;margin-bottom:.875rem">
+      ${[['Contact',cl.contact],['Email',cl.email],['Phone',cl.phone],['Revenue',fmtINR(cl.revenue)],['Projects',cl.projects||0]].map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:8px">
+        <span style="font-size:11px;color:#888">${k}</span>
+        <span style="font-size:11px;text-align:right;overflow:hidden;text-overflow:ellipsis">${esc(String(v||'—'))}</span>
+      </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="btn" onclick="openAddInvoice('${cl.id}')" style="flex:1;font-size:11px">+ Invoice</button>
+      <button class="btn btn-sm" onclick="openEditClient('${cl.id}')">✎ Edit</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteClient('${cl.id}')">✕</button>
+    </div>
+  </div>`).join('')}</div>`;
+}
+
+function openAddClient() {
+  showModal(`<div class="modal-title">New Client</div>
+    <div class="g2">
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Company Name *</label><input class="fi" id="cl-name" placeholder="e.g. Nova Brands Pvt. Ltd."></div>
+      <div class="fg"><label class="fl">Industry</label><input class="fi" id="cl-ind" placeholder="e.g. D2C, FMCG, Hospitality"></div>
+      <div class="fg"><label class="fl">Contact Person</label><input class="fi" id="cl-contact" placeholder="Primary contact name"></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="cl-email" type="email"></div>
+      <div class="fg"><label class="fl">Phone</label><input class="fi" id="cl-phone" placeholder="+91 ..."></div>
+      <div class="fg"><label class="fl">Revenue (₹)</label><input class="fi" id="cl-rev" type="number" placeholder="0"></div>
+    </div>
+    <div class="fg"><label class="fl">Status</label><select class="fi" id="cl-status"><option value="active">Active</option><option value="lead">Lead</option></select></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveClient()">Add Client</button></div>`);
+}
+
+function saveClient() {
+  const name = document.getElementById('cl-name').value.trim();
+  if (!name) { alert('Name required.'); return; }
+  S.clients.push({
+    id:uid(), name,
+    industry: document.getElementById('cl-ind').value.trim()||'—',
+    contact:  document.getElementById('cl-contact').value.trim()||'—',
+    email:    document.getElementById('cl-email').value.trim()||'—',
+    phone:    document.getElementById('cl-phone').value.trim()||'—',
+    revenue:  Number(document.getElementById('cl-rev').value)||0,
+    projects: 0,
+    status:   document.getElementById('cl-status').value,
+    avClass:  avClass(S.clients.length),
+    initials: mkInit(name)
+  });
+  save(); logAct('client', `New client: <b>${esc(name)}</b>`, '🏢');
+  toast(`"${name}" added ✓`); closeModal(); renderPage();
+}
+
+function openEditClient(id) {
+  const cl = S.clients.find(c=>c.id===id); if(!cl) return;
+  const clean = v => v==='—'?'':v||'';
+  showModal(`<div class="modal-title">Edit Client — ${esc(cl.name)}</div>
+    <div class="g2">
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Company Name *</label><input class="fi" id="cl-name" value="${esc(cl.name)}"></div>
+      <div class="fg"><label class="fl">Industry</label><input class="fi" id="cl-ind" value="${esc(clean(cl.industry))}"></div>
+      <div class="fg"><label class="fl">Contact Person</label><input class="fi" id="cl-contact" value="${esc(clean(cl.contact))}"></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="cl-email" type="email" value="${esc(clean(cl.email))}"></div>
+      <div class="fg"><label class="fl">Phone</label><input class="fi" id="cl-phone" value="${esc(clean(cl.phone))}"></div>
+      <div class="fg"><label class="fl">Revenue (₹)</label><input class="fi" id="cl-rev" type="number" value="${cl.revenue||0}"></div>
+    </div>
+    <div class="fg"><label class="fl">Status</label><select class="fi" id="cl-status">
+      <option value="active" ${cl.status==='active'?'selected':''}>Active</option>
+      <option value="lead"   ${cl.status==='lead'?'selected':''}>Lead</option>
+    </select></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="updateClient('${id}')">Save</button></div>`);
+}
+
+function updateClient(id) {
+  const cl = S.clients.find(c=>c.id===id); if(!cl) return;
+  cl.name     = document.getElementById('cl-name').value.trim()    || cl.name;
+  cl.industry = document.getElementById('cl-ind').value.trim()     || '—';
+  cl.contact  = document.getElementById('cl-contact').value.trim() || '—';
+  cl.email    = document.getElementById('cl-email').value.trim()   || '—';
+  cl.phone    = document.getElementById('cl-phone').value.trim()   || '—';
+  cl.revenue  = Number(document.getElementById('cl-rev').value)||0;
+  cl.status   = document.getElementById('cl-status').value;
+  cl.initials = mkInit(cl.name);
+  save(); toast('Client updated ✓'); closeModal(); renderPage();
+}
+
+function deleteClient(id) {
+  const cl = S.clients.find(c=>c.id===id); if(!cl) return;
+  const linked = S.projects.filter(p=>p.clientId===id).length;
+  if (!confirm(`Delete "${cl.name}"?${linked?`\n\n${linked} linked project${linked!==1?'s':''} will remain but lose the client link.`:''}`)) return;
+  S.clients.splice(S.clients.findIndex(c=>c.id===id), 1);
+  save(); toast(`"${cl.name}" deleted`); renderPage();
+}
+
+// ── INVOICES ─────────────────────────────────────────────────────
+function pgInvoices(c, a) {
+  a.innerHTML = `<button class="btn btn-primary" onclick="openAddInvoice(null)">+ New Invoice</button>`;
+  const paid = S.invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+Number(i.amount),0);
+  const pend = S.invoices.filter(i=>i.status==='pending').reduce((s,i)=>s+Number(i.amount),0);
+  const ovd  = S.invoices.filter(i=>i.status==='overdue').reduce((s,i)=>s+Number(i.amount),0);
+  c.innerHTML = `
+    <div class="g4" style="margin-bottom:1.25rem">
+      <div class="stat"><div class="stat-label">Collected</div><div class="stat-val" style="font-size:15px">${fmtINR(paid)}</div></div>
+      <div class="stat"><div class="stat-label">Pending</div><div class="stat-val" style="font-size:15px">${fmtINR(pend)}</div></div>
+      <div class="stat"><div class="stat-label">Overdue</div><div class="stat-val" style="font-size:15px;color:#c0392b">${fmtINR(ovd)}</div></div>
+      <div class="stat"><div class="stat-label">Total Billed</div><div class="stat-val" style="font-size:15px">${fmtINR(paid+pend+ovd)}</div></div>
+    </div>
+    ${!S.invoices.length
+      ? emptyState('No invoices yet','Create invoices from a client card or here','openAddInvoice(null)','+ New Invoice')
+      : `<div class="card"><table>
+          <thead><tr><th>Invoice</th><th>Client</th><th>Issued</th><th>Due</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+          <tbody>${S.invoices.map(i=>{const d=daysLeft(i.dueDate);return `<tr>
+            <td style="font-weight:700">${esc(i.id)}</td>
+            <td>${esc(i.client)}</td>
+            <td style="color:#888">${esc(i.issued)}</td>
+            <td style="color:${i.status!=='paid'&&d<0?'#c0392b':i.status!=='paid'&&d<=3?'#f57f17':'#888'}">${fmtDate(i.dueDate)}</td>
+            <td style="font-weight:700">${fmtINR(i.amount)}</td>
+            <td><span class="badge ${i.status==='paid'?'b-green':i.status==='pending'?'b-blue':i.status==='overdue'?'b-red':'b-gray'}">${i.status}</span></td>
+            <td>${i.status!=='paid'?`<button class="btn btn-sm" onclick="markPaid('${i.id}')">✓ Mark Paid</button>`:'—'}</td>
+          </tr>`;}).join('')}</tbody>
+        </table></div>`}`;
+}
+
+function openAddInvoice(clientId) {
+  if (!S.clients.length) { alert('Add a client first.'); return; }
+  const co = S.clients.map(c=>`<option value="${c.id}" ${c.id===clientId?'selected':''}>${esc(c.name)}</option>`).join('');
+  showModal(`<div class="modal-title">New Invoice</div>
+    <div class="fg"><label class="fl">Client</label><select class="fi" id="inv-client">${co}</select></div>
+    <div class="fg"><label class="fl">Amount (₹) *</label><input class="fi" id="inv-amt" type="number" placeholder="0"></div>
+    <div class="fg"><label class="fl">Due Date</label><input class="fi" id="inv-due" type="date"></div>
+    <div class="fg"><label class="fl">Status</label><select class="fi" id="inv-status"><option value="draft">Draft</option><option value="pending">Pending (sent to client)</option></select></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveInvoice()">Create Invoice</button></div>`);
+}
+
+function saveInvoice() {
+  const cid    = document.getElementById('inv-client').value;
+  const amount = Number(document.getElementById('inv-amt').value)||0;
+  if (!amount) { alert('Amount required.'); return; }
+  const due    = document.getElementById('inv-due').value;
+  const status = document.getElementById('inv-status').value;
+  const cl     = S.clients.find(c=>c.id===cid);
+  const invId  = 'INV-' + String(S.invoices.length+1).padStart(3,'0');
+  S.invoices.push({
+    id:invId, client:cl.name, clientId:cid, amount, status,
+    dueDate: due ? new Date(due) : new Date(TODAY.getTime()+30*86400000),
+    issued:  new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
+  });
+  save(); logAct('invoice', `Invoice <b>${invId}</b> for <b>${esc(cl.name)}</b> — ${fmtINR(amount)}`, '₹');
+  toast(`${invId} created ✓`); closeModal(); S.page='invoices'; renderPage();
+}
+
+function markPaid(id) {
+  const i = S.invoices.find(i=>i.id===id); if(!i) return;
+  i.status = 'paid'; save();
+  logAct('invoice', `Invoice <b>${id}</b> marked paid`, '₹');
+  toast(`${id} marked paid ✓`); renderPage();
+}
+
+
+// ================================================================
+// BBC AGENCY OS — module-member.js
+// Team member portal — restricted views, no financial data
+// ================================================================
+
+function renderMember() {
+  const m = curMember(); if(!m) { logout(); return; }
+  const perms   = memberPerms(m);
+  const allowed = Object.keys(MODULES).filter(k=>perms[k]);
+  if (!allowed.includes(S.page)) S.page = allowed[0] || 'dashboard';
+
+  const navItems = allowed.map(k=>`
+    <div class="sb-item ${S.page===k?'on':''}" onclick="mNav('${k}')">
+      ${mSVG(k)}<span style="flex:1">${MODULES[k].label}</span>
+    </div>`).join('') || '<div style="font-size:11px;color:#888;padding:8px 10px">No modules assigned yet.<br>Contact your admin.</div>';
+
+  document.getElementById('R').innerHTML = `<div class="app">
+    <nav class="sb">
+      <div class="sb-logo">
+        <div class="sb-logo-name">${esc(S.agencyName)}</div>
+        <div class="sb-logo-sub">Team Portal</div>
+      </div>
+      <div class="sb-section">${navItems}</div>
+      <div class="sb-foot">
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 10px">
+          <div class="av ${m.avClass||'av-a'}" style="width:28px;height:28px">${m.id}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.name)}</div>
+            <div style="font-size:10px;color:#888">${esc(m.role||'Team Member')}</div>
+          </div>
+        </div>
+        <button class="btn" onclick="logout()" style="width:100%;font-size:11px;margin-top:4px">Switch User</button>
+      </div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title" id="m-title">${MODULES[S.page]?.label||'Dashboard'}</div>
+        <div style="font-size:11px;color:#888">${new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}</div>
+      </div>
+      <div class="page" id="m-page"></div>
+    </div>
+  </div>`;
+
+  document.getElementById('M').innerHTML = '';
+  renderMemberPage();
+}
+
+function mNav(pg) {
+  const m = curMember(); if(!m) return;
+  if (!memberPerms(m)[pg]) { toast('You do not have access to this module.'); return; }
+  S.page = pg;
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.toggle('on', el.getAttribute('onclick')===`mNav('${pg}')`));
+  const t = document.getElementById('m-title'); if(t) t.textContent = MODULES[pg]?.label||pg;
+  renderMemberPage();
+}
+
+function renderMemberPage() {
+  const c = document.getElementById('m-page'); if(!c) return;
+  if (S.page === 'services') S.page = 'dashboard'; // Hard block
+  switch(S.page) {
+    case 'dashboard':   mDashboard(c);       break;
+    case 'tasks':       c.innerHTML = mTasksHTML();       break;
+    case 'projects':    c.innerHTML = mProjectsHTML();    break;
+    case 'clients':     c.innerHTML = mClientsHTML();     break;
+    case 'invoices':    c.innerHTML = mInvoicesHTML();    break;
+    case 'leads':       c.innerHTML = mLeadsHTML();       break;
+    case 'quotations':  c.innerHTML = mQuotationsHTML();  break;
+    case 'calendar':    pgCalendar(c, {innerHTML:''});    break;
+    case 'alerts':      pgAlerts(c, {innerHTML:''});      break;
+    case 'activity':    pgActivity(c, {innerHTML:''});    break;
+    default:            mDashboard(c);
+  }
+}
+
+// ── MEMBER DASHBOARD ────────────────────────────────────────────
+function mDashboard(c) {
+  const m = curMember(); if(!m) return;
+  const myT = S.tasks.filter(t=>t.assignee===m.id);
+  const myP = S.projects.filter(p=>(p.team||[]).includes(m.id));
+  const ov  = myT.filter(t=>!t.done && daysLeft(t.dueDate)<0);
+  c.innerHTML = `
+    ${ov.length ? `<div style="margin-bottom:1rem;padding:10px 14px;background:#fef0f0;border:.5px solid #fcc;border-radius:8px;font-size:12px;color:#c0392b"><b>⚠ ${ov.length} task${ov.length!==1?'s':''} overdue</b></div>` : ''}
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:1.25rem">
+      <div class="stat"><div class="stat-label">Open Tasks</div><div class="stat-val">${myT.filter(t=>!t.done).length}</div><div class="stat-sub">${myT.filter(t=>t.done).length} done</div></div>
+      <div class="stat"><div class="stat-label">My Projects</div><div class="stat-val">${myP.length}</div><div class="stat-sub">${myP.filter(p=>p.status==='active').length} active</div></div>
+      <div class="stat"><div class="stat-label">Due This Week</div><div class="stat-val">${myT.filter(t=>!t.done&&daysLeft(t.dueDate)>=0&&daysLeft(t.dueDate)<=7).length}</div><div class="stat-sub">tasks</div></div>
+    </div>
+    <div class="g2">
+      <div>
+        <div class="sh"><span class="sh-title">My Tasks</span></div>
+        ${myT.length ? myT.map(t=>{const d=daysLeft(t.dueDate);return `<div class="m-task">
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            <div class="chk ${t.done?'done':''}" onclick="mToggleTask('${t.id}')" style="margin-top:2px"></div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:500;${t.done?'text-decoration:line-through;color:#888':''}">${esc(t.title)}</div>
+              <div style="font-size:11px;color:#888;margin-top:2px">${esc(t.project||'')}</div>
+              ${t.notes?`<div style="font-size:11px;color:#555;margin-top:5px;background:#f4f3f0;border-radius:5px;padding:5px 8px">${esc(t.notes)}</div>`:''}
+              <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+                <span class="badge b-${t.priority==='high'?'red':t.priority==='medium'?'amber':'gray'}">${t.priority}</span>
+                <span style="font-size:11px;color:${!t.done&&d<0?'#c0392b':!t.done&&d<=2?'#f57f17':'#888'}">Due ${fmtShort(t.dueDate)}${!t.done&&d<0?' · Overdue':!t.done&&d<=2?' · Soon':''}</span>
+              </div>
+            </div>
+          </div>
+        </div>`;}).join('') : em('No tasks assigned to you yet')}
+      </div>
+      <div>
+        <div class="sh"><span class="sh-title">My Projects</span></div>
+        ${myP.length ? myP.map(p=>{const pt=S.tasks.filter(t=>t.projectId===p.id&&t.assignee===m.id);const done=pt.filter(t=>t.done).length;return `<div class="card" style="margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <div class="proj-dot ${p.dotClass||'d-green'}"></div>
+            <div style="font-size:13px;font-weight:500;flex:1">${esc(p.name)}</div>
+            <span class="badge ${p.status==='completed'?'b-green':'b-blue'}">${p.status==='completed'?'✓ Done':p.status}</span>
+          </div>
+          <div style="font-size:11px;color:#888;margin-bottom:8px">Due ${fmtDate(p.dueDate)}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div class="pb" style="flex:1"><div class="pb-fill" style="width:${p.progress}%;background:${p.progress===100?'#2e7d32':dotColor(p.dotClass||'d-green')}"></div></div>
+            <span style="font-size:11px;font-weight:600">${p.progress}%</span>
+          </div>
+          <div style="font-size:11px;color:#888">${done}/${pt.length} of your tasks done</div>
+        </div>`;}).join('') : em('No projects assigned to you')}
+      </div>
+    </div>`;
+}
+
+function mToggleTask(id) {
+  const t = S.tasks.find(t=>t.id===id);
+  if (!t || t.assignee !== S.currentUser) return;
+  t.done = !t.done;
+  recalcProject(t.projectId);
+  save(); renderMemberPage();
+}
+
+// ── MEMBER TASKS (table view, assigned only) ──────────────────
+function mTasksHTML() {
+  const m  = curMember(); if(!m) return '';
+  const myT= S.tasks.filter(t=>t.assignee===m.id);
+  if (!myT.length) return emptyState('No tasks assigned yet','Your admin will assign tasks to you','','');
+  const open = myT.filter(t=>!t.done);
+  const done = myT.filter(t=>t.done);
+  return `<div class="card" style="padding:0"><table>
+    <thead><tr>
+      <th style="width:24px;padding-left:12px"></th>
+      <th>Task</th><th>Project</th><th>Due</th><th>Priority</th><th>Status</th>
+    </tr></thead>
+    <tbody>
+      ${open.map(t=>{const d=daysLeft(t.dueDate);const ex=S.expandedTasks[t.id];return `<tr onclick="S.expandedTasks['${t.id}']=!S.expandedTasks['${t.id}'];renderMemberPage()">
+        <td style="padding-left:12px"><span style="font-size:10px;color:#bbb">${ex?'▾':'▸'}</span></td>
+        <td><div style="display:flex;align-items:center;gap:8px"><div class="chk ${t.done?'done':''}" onclick="event.stopPropagation();mToggleTask('${t.id}')"></div><span>${esc(t.title)}</span></div></td>
+        <td style="color:#888">${esc(t.project||'')}</td>
+        <td style="color:${!t.done&&d<0?'#c0392b':!t.done&&d<=2?'#f57f17':'#888'};font-size:11px">${fmtShort(t.dueDate)}${!t.done&&d<0?' · OD':!t.done&&d<=2?' · Soon':''}</td>
+        <td><span class="badge b-${t.priority==='high'?'red':t.priority==='medium'?'amber':'gray'}">${t.priority}</span></td>
+        <td><span class="badge b-blue">open</span></td>
+      </tr>${ex?`<tr><td colspan="6" style="padding:8px 14px 10px 50px;background:#fafaf9">
+        ${t.notes?`<div style="font-size:12px;background:#f4f3f0;border-radius:6px;padding:8px 10px">${esc(t.notes)}</div>`:'<div style="font-size:11px;color:#aaa">No notes</div>'}
+      </td></tr>`:''}`;}).join('')}
+      ${done.length?`<tr><td colspan="6" style="padding:8px 12px;background:#f8f7f5;border-top:1.5px solid rgba(0,0,0,.08)"><span style="font-size:10px;font-weight:700;text-transform:uppercase;color:#888;cursor:pointer" onclick="S.showDone=!S.showDone;renderMemberPage()">${S.showDone?'▾':'▸'} Completed (${done.length})</span></td></tr>${S.showDone?done.map(t=>`<tr><td></td><td><span style="text-decoration:line-through;color:#888">${esc(t.title)}</span></td><td style="color:#888">${esc(t.project||'')}</td><td></td><td></td><td><span class="badge b-green">done</span></td></tr>`).join(''):''}` :''}
+    </tbody>
+  </table></div>`;
+}
+
+// ── MEMBER PROJECTS (assigned only, no financials) ────────────
+function mProjectsHTML() {
+  const m  = curMember(); if(!m) return '';
+  const myP= S.projects.filter(p=>(p.team||[]).includes(m.id));
+  if (!myP.length) return emptyState('No projects assigned','Your admin will add you to projects','','');
+  return `<div class="g3">${myP.map(p=>{
+    const pt  = S.tasks.filter(t=>t.projectId===p.id&&t.assignee===m.id);
+    const done= pt.filter(t=>t.done).length;
+    const d   = daysLeft(p.dueDate); const ic=p.status==='completed';
+    return `<div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
+        <div class="proj-dot ${p.dotClass||'d-green'}"></div>
+        <div style="font-size:13px;font-weight:600;flex:1">${esc(p.name)}</div>
+        <span class="badge ${ic?'b-green':'b-blue'}">${ic?'✓ Done':p.status}</span>
+      </div>
+      <div style="font-size:11px;color:${d<0&&!ic?'#c0392b':'#888'};margin-bottom:8px">Due ${fmtDate(p.dueDate)}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+        <div class="pb" style="flex:1"><div class="pb-fill" style="width:${p.progress}%;background:${ic?'#2e7d32':dotColor(p.dotClass||'d-green')}"></div></div>
+        <span style="font-size:11px;font-weight:600">${p.progress}%</span>
+      </div>
+      <div style="font-size:11px;color:#888;margin-bottom:8px">${done}/${pt.length} of your tasks done</div>
+      ${pt.map(t=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:.5px solid rgba(0,0,0,.05)">
+        <div class="chk ${t.done?'done':''}" onclick="mToggleTask('${t.id}')" style="width:13px;height:13px;flex-shrink:0"></div>
+        <span style="font-size:12px;flex:1;${t.done?'text-decoration:line-through;color:#888':''}">${esc(t.title)}</span>
+        <span style="font-size:10px;color:#aaa">${fmtShort(t.dueDate)}</span>
+      </div>`).join('')}
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ── MEMBER CLIENTS (no revenue) ──────────────────────────────
+function mClientsHTML() {
+  return `<div class="card">
+    <div style="font-size:11px;color:#888;margin-bottom:.75rem">Client contact directory — financial details are admin-only.</div>
+    ${S.clients.map(cl=>`<div class="li">
+      <div class="av ${cl.avClass||'av-a'}" style="width:32px;height:32px;border-radius:8px;font-size:11px">${esc(cl.initials||'?')}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${esc(cl.name)}</div>
+        <div style="font-size:11px;color:#888">${esc(cl.industry||'—')} · ${cl.email!=='—'?esc(cl.email||''):''}</div>
+      </div>
+      <span class="badge ${cl.status==='active'?'b-green':'b-amber'}">${cl.status}</span>
+    </div>`).join('') || em('No clients yet')}
+  </div>`;
+}
+
+// ── MEMBER INVOICES (no amounts) ─────────────────────────────
+function mInvoicesHTML() {
+  return `<div class="card">
+    <div style="font-size:11px;color:#888;margin-bottom:.75rem">Invoice status — financial amounts are admin-only.</div>
+    <table><thead><tr><th>Invoice</th><th>Client</th><th>Due Date</th><th>Status</th></tr></thead>
+    <tbody>${S.invoices.map(i=>`<tr>
+      <td style="font-weight:700">${esc(i.id)}</td>
+      <td>${esc(i.client)}</td>
+      <td style="color:#888">${fmtDate(i.dueDate)}</td>
+      <td><span class="badge ${i.status==='paid'?'b-green':i.status==='pending'?'b-blue':'b-red'}">${i.status}</span></td>
+    </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:#888;padding:1.5rem">No invoices</td></tr>'}</tbody></table>
+  </div>`;
+}
+
+// ── MEMBER LEADS (no value/financials) ───────────────────────
+function mLeadsHTML() {
+  if (!S.leads.length) return emptyState('No leads yet','','','');
+  return `<div>${S.leads.map(l=>`<div class="lead-card">
+    <div class="lead-hd" onclick="S.expandedLeads['${l.id}']=!S.expandedLeads['${l.id}'];renderMemberPage()">
+      <span style="font-size:11px;color:#bbb;width:18px">${S.expandedLeads[l.id]?'▾':'▸'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.title)}</div>
+        ${l.company?`<div style="font-size:11px;color:#888">${esc(l.company)}</div>`:''}
+      </div>
+      <span class="badge ${STAGE_BADGE[l.stage]||'b-gray'}">${l.stage}</span>
+    </div>
+    ${S.expandedLeads[l.id]?`<div class="lead-body">
+      <div class="lead-pipe">${LEAD_STAGES.map(st=>{const idx=LEAD_STAGES.indexOf(st),ci=LEAD_STAGES.indexOf(l.stage);return `<div class="lead-stage ${st===l.stage?'cur':idx<ci?'past':''}">${st}</div>`;}).join('')}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        ${[['Contact',l.contact||'—'],['Phone',l.phone||'—'],['Stage',l.stage]].map(([k,v])=>`<div>
+          <div style="font-size:10px;color:#888;font-weight:600;text-transform:uppercase;margin-bottom:3px">${k}</div>
+          <div style="font-size:12px">${esc(v)}</div>
+        </div>`).join('')}
+      </div>
+    </div>`:''}</div>`).join('')}</div>`;
+}
+
+// ── MEMBER QUOTATIONS (no pricing) ───────────────────────────
+function mQuotationsHTML() {
+  return `<div class="card">
+    <div style="font-size:11px;color:#888;margin-bottom:.875rem">Quotation status overview — financial details are admin-only.</div>
+    <table><thead><tr><th>Quote No</th><th>Client</th><th>Services</th><th>Status</th><th>Created</th></tr></thead>
+    <tbody>${S.quotations.map(q=>`<tr>
+      <td style="font-weight:700">${esc(q.quoteNo)}</td>
+      <td>${esc(q.clientName||q.leadTitle||'—')}</td>
+      <td style="color:#888">${(q.items||[]).map(i=>esc(i.service)).join(', ')||'—'}</td>
+      <td><span class="badge ${q.status==='accepted'?'b-green':q.status==='sent'?'b-blue':q.status==='rejected'?'b-red':'b-gray'}">${q.status}</span></td>
+      <td style="color:#888">${fmtDate(q.createdAt)}</td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:#888;padding:1.5rem">No quotations</td></tr>'}</tbody></table>
+  </div>`;
+}
+
+// ── ICON MAP FOR MEMBER SIDEBAR ──────────────────────────────
+function mSVG(k) {
+  const icons = {
+    dashboard:  '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>',
+    tasks:      '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 4h8M5 8h8M5 12h8"/><circle cx="2.5" cy="4" r="1"/><circle cx="2.5" cy="8" r="1"/><circle cx="2.5" cy="12" r="1"/></svg>',
+    projects:   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h5"/></svg>',
+    leads:      '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a3 3 0 110 6 3 3 0 010-6z"/><path d="M2 14c0-3.31 2.69-6 6-6s6 2.69 6 6"/></svg>',
+    quotations: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V5l-3-3z"/><path d="M9 2v4h4M5 8h6M5 11h3"/></svg>',
+    clients:    '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5 7h6M5 10h4"/></svg>',
+    invoices:   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V5l-3-3z"/><path d="M9 2v4h4M5 8h6M5 11h4"/></svg>',
+    calendar:   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M5 1v3M11 1v3M2 7h12"/></svg>',
+    alerts:     '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a5 5 0 015 5v2l1 2H2l1-2V7a5 5 0 015-5z"/><path d="M6.5 13a1.5 1.5 0 003 0"/></svg>',
+    activity:   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2l2-5 3 10 2-5h3"/></svg>',
+  };
+  return icons[k] || icons.dashboard;
+}
+
+
+// BOOT
+startFirebase();
 </script>
-</head>
-<body>
-<div id="R"></div>  <!-- Root: login screen or full app renders here -->
-<div id="M"></div>  <!-- Modal layer -->
-<div class="toast" id="toast"></div>
 </body>
 </html>
