@@ -2665,10 +2665,11 @@ function mToggleTask(id) {
 function mTasksHTML() {
   const m  = curMember(); if(!m) return '';
   const myT= S.tasks.filter(t=>t.assignee===m.id);
-  if (!myT.length) return emptyState('No tasks assigned yet','Your admin will assign tasks to you','','');
+  const addBtn = S.projects.length ? `<div style="margin-bottom:1rem"><button class="btn btn-primary" onclick="mOpenAddTaskGeneral()">+ Add Task</button></div>` : '';
+  if (!myT.length) return addBtn + emptyState('No tasks yet','Create a project first, then add tasks here','','');
   const open = myT.filter(t=>!t.done);
   const done = myT.filter(t=>t.done);
-  return `<div class="card" style="padding:0"><table>
+  return addBtn + `<div class="card" style="padding:0"><table>
     <thead><tr>
       <th style="width:24px;padding-left:12px"></th>
       <th>Task</th><th>Project</th><th>Due</th><th>Priority</th><th>Status</th>
@@ -2689,34 +2690,127 @@ function mTasksHTML() {
   </table></div>`;
 }
 
-// ── MEMBER PROJECTS (assigned only, no financials) ────────────
+// ── MEMBER PROJECTS (can create + add tasks) ─────────────────
 function mProjectsHTML() {
-  const m  = curMember(); if(!m) return '';
-  const myP= S.projects.filter(p=>(p.team||[]).includes(m.id));
-  if (!myP.length) return emptyState('No projects assigned','Your admin will add you to projects','','');
-  return `<div class="g3">${myP.map(p=>{
-    const pt  = S.tasks.filter(t=>t.projectId===p.id&&t.assignee===m.id);
-    const done= pt.filter(t=>t.done).length;
-    const d   = daysLeft(p.dueDate); const ic=p.status==='completed';
+  const m   = curMember(); if(!m) return '';
+  const myP = S.projects.filter(p=>(p.team||[]).includes(m.id));
+  const allP= S.projects; // members can see all projects to add tasks
+
+  const createBtn = S.clients.length
+    ? `<button class="btn btn-primary" onclick="mOpenAddProject()" style="margin-bottom:1rem">+ New Project</button>`
+    : `<div style="background:#fff8e1;border:.5px solid #ffe082;border-radius:8px;padding:10px 14px;font-size:12px;color:#f57f17;margin-bottom:1rem">⚠ A client must exist before creating a project. Ask your admin to add a client first.</div>`;
+
+  if (!myP.length) return createBtn + emptyState('No projects yet','Create your first project above','','');
+
+  return createBtn + `<div class="g3">${myP.map(p=>{
+    const allT = S.tasks.filter(t=>t.projectId===p.id);
+    const myT  = allT.filter(t=>t.assignee===m.id);
+    const done = myT.filter(t=>t.done).length;
+    const d    = daysLeft(p.dueDate); const ic=p.status==='completed';
     return `<div class="card">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
         <div class="proj-dot ${p.dotClass||'d-green'}"></div>
         <div style="font-size:13px;font-weight:600;flex:1">${esc(p.name)}</div>
         <span class="badge ${ic?'b-green':'b-blue'}">${ic?'✓ Done':p.status}</span>
       </div>
+      <div style="font-size:11px;color:#888;margin-bottom:3px">${esc(p.client)}</div>
       <div style="font-size:11px;color:${d<0&&!ic?'#c0392b':'#888'};margin-bottom:8px">Due ${fmtDate(p.dueDate)}</div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
         <div class="pb" style="flex:1"><div class="pb-fill" style="width:${p.progress}%;background:${ic?'#2e7d32':dotColor(p.dotClass||'d-green')}"></div></div>
         <span style="font-size:11px;font-weight:600">${p.progress}%</span>
       </div>
-      <div style="font-size:11px;color:#888;margin-bottom:8px">${done}/${pt.length} of your tasks done</div>
-      ${pt.map(t=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:.5px solid rgba(0,0,0,.05)">
+      <div style="font-size:11px;color:#888;margin-bottom:8px">${done}/${myT.length} of your tasks · ${allT.length} total in project</div>
+      ${myT.map(t=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:.5px solid rgba(0,0,0,.05)">
         <div class="chk ${t.done?'done':''}" onclick="mToggleTask('${t.id}')" style="width:13px;height:13px;flex-shrink:0"></div>
         <span style="font-size:12px;flex:1;${t.done?'text-decoration:line-through;color:#888':''}">${esc(t.title)}</span>
         <span style="font-size:10px;color:#aaa">${fmtShort(t.dueDate)}</span>
       </div>`).join('')}
+      <button class="btn btn-sm" onclick="mOpenAddTask('${p.id}')" style="width:100%;margin-top:8px;font-size:11px">+ Add Task to this Project</button>
     </div>`;
   }).join('')}</div>`;
+}
+
+// Member: open create project modal (uses existing saveProject from module-projects.js)
+function mOpenAddProject() {
+  if (!S.clients.length) { alert('Ask your admin to add a client first.'); return; }
+  window._extraTasks = [];
+  const m  = curMember(); if(!m) return;
+  const co = S.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  showModal(`<div class="modal-title">New Project</div>
+    <div style="background:#f3e8ff;border:.5px solid #d1b3ff;border-radius:7px;padding:8px 12px;font-size:11px;color:#6d28d9;margin-bottom:1rem">At least one task is required when creating a project.</div>
+    <div class="fg"><label class="fl">Project Name *</label><input class="fi" id="pj-name" placeholder="e.g. Q3 Social Campaign"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Client *</label><select class="fi" id="pj-client">${co}</select></div>
+      <div class="fg"><label class="fl">Due Date</label><input class="fi" id="pj-due" type="date"></div>
+    </div>
+    <div class="fg"><label class="fl">Status</label><select class="fi" id="pj-status"><option value="active">Active</option><option value="lead">Lead / Proposal</option></select></div>
+    <div style="border-top:.5px solid #eee;margin:.875rem 0;padding-top:.875rem">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:8px">First Task *</div>
+    </div>
+    <div class="fg"><label class="fl">Task Title *</label><input class="fi" id="t1-title" placeholder="e.g. Initial brief and kickoff"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Due Date</label><input class="fi" id="t1-due" type="date"></div>
+      <div class="fg"><label class="fl">Priority</label><select class="fi" id="t1-pri"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
+    </div>
+    <input type="hidden" id="t1-assign" value="${m.id}">
+    <div class="fg"><label class="fl">Notes</label><textarea class="fi" id="t1-notes" style="min-height:56px"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="mSaveProject()">Create Project</button>
+    </div>`);
+}
+
+// Save project — member version (assigns self automatically)
+function mSaveProject() {
+  const m    = curMember(); if(!m) return;
+  const name = document.getElementById('pj-name').value.trim();
+  if (!name) { alert('Project name required.'); return; }
+  const t1   = document.getElementById('t1-title').value.trim();
+  if (!t1)   { alert('At least one task is required.'); return; }
+  const clientId = document.getElementById('pj-client').value;
+  const cl   = S.clients.find(c=>c.id===clientId);
+  const due  = document.getElementById('pj-due').value;
+  const pid  = uid();
+  const dotC = dotClass(S.projects.length);
+  S.projects.push({
+    id:pid, name, client:cl.name, clientId, status:document.getElementById('pj-status').value,
+    progress:0, dotClass:dotC, team:['OWNER', m.id],
+    dueDate: due ? new Date(due) : new Date(TODAY.getTime()+30*86400000)
+  });
+  if (cl) cl.projects = (cl.projects||0) + 1;
+  const t1due = document.getElementById('t1-due').value;
+  S.tasks.push({
+    id:uid(), title:t1, project:name, projectId:pid, assignee:m.id,
+    priority:document.getElementById('t1-pri').value,
+    notes:document.getElementById('t1-notes').value.trim(),
+    done:false,
+    dueDate: t1due ? new Date(t1due) : new Date(TODAY.getTime()+7*86400000)
+  });
+  recalcProject(pid);
+  save();
+  logAct('project', `Project <b>${esc(name)}</b> created by <b>${esc(m.name)}</b>`, '📁');
+  toast(`"${name}" created ✓`);
+  closeModal();
+  renderMemberPage();
+}
+
+// Member: open add task modal for a specific project
+function mOpenAddTask(pid) {
+  const m = curMember(); if(!m) return;
+  const p = S.projects.find(p=>p.id===pid); if(!p) return;
+  showModal(`<div class="modal-title">Add Task — ${esc(p.name)}</div>
+    <div class="fg"><label class="fl">Task Title *</label><input class="fi" id="ta-title" placeholder="e.g. Design carousel posts"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Due Date</label><input class="fi" id="ta-due" type="date"></div>
+      <div class="fg"><label class="fl">Priority</label><select class="fi" id="ta-pri"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
+    </div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fi" id="ta-notes" placeholder="Task details..."></textarea></div>
+    <input type="hidden" id="ta-proj" value="${pid}">
+    <input type="hidden" id="ta-assign" value="${m.id}">
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTask();renderMemberPage()">Add Task</button>
+    </div>`);
 }
 
 // ── MEMBER CLIENTS (no revenue) ──────────────────────────────
@@ -2801,6 +2895,26 @@ function mSVG(k) {
     activity:   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2l2-5 3 10 2-5h3"/></svg>',
   };
   return icons[k] || icons.dashboard;
+}
+
+// Member: add task without a pre-selected project
+function mOpenAddTaskGeneral() {
+  const m = curMember(); if(!m) return;
+  if (!S.projects.length) { alert('No projects exist yet. Create a project first.'); return; }
+  const po = S.projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  showModal(`<div class="modal-title">Add Task</div>
+    <div class="fg"><label class="fl">Task Title *</label><input class="fi" id="ta-title" placeholder="e.g. Design carousel posts"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Project</label><select class="fi" id="ta-proj">${po}</select></div>
+      <div class="fg"><label class="fl">Due Date</label><input class="fi" id="ta-due" type="date"></div>
+      <div class="fg"><label class="fl">Priority</label><select class="fi" id="ta-pri"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
+    </div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fi" id="ta-notes" placeholder="Task details..."></textarea></div>
+    <input type="hidden" id="ta-assign" value="${m.id}">
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTask();renderMemberPage()">Add Task</button>
+    </div>`);
 }
 
 
