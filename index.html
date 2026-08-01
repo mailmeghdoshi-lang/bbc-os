@@ -1417,6 +1417,7 @@ function saveTask() {
   const due    = document.getElementById('ta-due').value;
   S.tasks.push({
     id:uid(), title, project:proj?proj.name:'', projectId:projId, assignee:assign,
+    createdBy: S.currentUser,
     priority:document.getElementById('ta-pri').value,
     notes:document.getElementById('ta-notes').value.trim(),
     done:false,
@@ -2661,12 +2662,13 @@ function mToggleTask(id) {
   save(); renderMemberPage();
 }
 
-// ── MEMBER TASKS (table view, assigned only) ──────────────────
+// ── MEMBER TASKS (assigned to me + tasks I delegated) ────────
 function mTasksHTML() {
-  const m  = curMember(); if(!m) return '';
-  const myT= S.tasks.filter(t=>t.assignee===m.id);
+  const m   = curMember(); if(!m) return '';
+  const myT = S.tasks.filter(t=>t.assignee===m.id);           // assigned to me
+  const delT= S.tasks.filter(t=>t.createdBy===m.id && t.assignee!==m.id); // I assigned to others
   const addBtn = S.projects.length ? `<div style="margin-bottom:1rem"><button class="btn btn-primary" onclick="mOpenAddTaskGeneral()">+ Add Task</button></div>` : '';
-  if (!myT.length) return addBtn + emptyState('No tasks yet','Create a project first, then add tasks here','','');
+  if (!myT.length && !delT.length) return addBtn + emptyState('No tasks yet','Create a project first, then add tasks here','','');
   const open = myT.filter(t=>!t.done);
   const done = myT.filter(t=>t.done);
   return addBtn + `<div class="card" style="padding:0"><table>
@@ -2685,9 +2687,23 @@ function mTasksHTML() {
       </tr>${ex?`<tr><td colspan="6" style="padding:8px 14px 10px 50px;background:#fafaf9">
         ${t.notes?`<div style="font-size:12px;background:#f4f3f0;border-radius:6px;padding:8px 10px">${esc(t.notes)}</div>`:'<div style="font-size:11px;color:#aaa">No notes</div>'}
       </td></tr>`:''}`;}).join('')}
-      ${done.length?`<tr><td colspan="6" style="padding:8px 12px;background:#f8f7f5;border-top:1.5px solid rgba(0,0,0,.08)"><span style="font-size:10px;font-weight:700;text-transform:uppercase;color:#888;cursor:pointer" onclick="S.showDone=!S.showDone;renderMemberPage()">${S.showDone?'▾':'▸'} Completed (${done.length})</span></td></tr>${S.showDone?done.map(t=>`<tr><td></td><td><span style="text-decoration:line-through;color:#888">${esc(t.title)}</span></td><td style="color:#888">${esc(t.project||'')}</td><td></td><td></td><td><span class="badge b-green">done</span></td></tr>`).join(''):''}` :''}
+      ${done.length?`<tr><td colspan="6" style="padding:8px 12px;background:#f8f7f5;border-top:1.5px solid rgba(0,0,0,.08)"><span style="font-size:10px;font-weight:700;text-transform:uppercase;color:#888;cursor:pointer" onclick="S.showDone=!S.showDone;renderMemberPage()">${S.showDone?'▾':'▸'} My Completed (${done.length})</span></td></tr>${S.showDone?done.map(t=>`<tr><td></td><td><span style="text-decoration:line-through;color:#888">${esc(t.title)}</span></td><td style="color:#888">${esc(t.project||'')}</td><td></td><td></td><td><span class="badge b-green">done</span></td></tr>`).join(''):''}` :''}
     </tbody>
-  </table></div>`;
+  </table></div>
+  ${delT.length?`<div style="margin-top:1.25rem">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:.5rem">Tasks I Delegated (${delT.length}) — follow-up view</div>
+    <div class="card" style="padding:0"><table>
+      <thead><tr><th>Task</th><th>Assigned To</th><th>Project</th><th>Due</th><th>Priority</th><th>Status</th></tr></thead>
+      <tbody>${delT.map(t=>{const d=daysLeft(t.dueDate);const assignee=S.team.find(tm=>tm.id===t.assignee);const aName=t.assignee==='OWNER'?S.ownerName:assignee?assignee.name:t.assignee;return `<tr>
+        <td style="font-weight:500">${esc(t.title)}</td>
+        <td><div style="display:flex;align-items:center;gap:6px"><div class="av ${assignee?assignee.avClass:'av-a'}" style="width:20px;height:20px;font-size:8px">${t.assignee==='OWNER'?S.ownerInitials:t.assignee}</div><span style="color:#888">${esc(aName)}</span></div></td>
+        <td style="color:#888">${esc(t.project||'')}</td>
+        <td style="color:${!t.done&&d<0?'#c0392b':!t.done&&d<=2?'#f57f17':'#888'};font-size:11px">${fmtShort(t.dueDate)}${!t.done&&d<0?' OD':''}</td>
+        <td><span class="badge b-${t.priority==='high'?'red':t.priority==='medium'?'amber':'gray'}">${t.priority}</span></td>
+        <td><span class="badge ${t.done?'b-green':'b-blue'}">${t.done?'done':'open'}</span></td>
+      </tr>`;}).join('')}</tbody>
+    </table></div>
+  </div>`:''}`;
 }
 
 // ── MEMBER PROJECTS (can create + add tasks) ─────────────────
