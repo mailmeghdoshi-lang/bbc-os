@@ -43,7 +43,7 @@ require.cache[fbPath] = { id: fbPath, filename: fbPath, loaded: true, exports: {
 // ── env + HTTP stubs ─────────────────────────────────────────────────────────
 Object.assign(process.env, {
   OWNER_WA: '919769277652', ANTHROPIC_API_KEY: 'test', WA_PHONE_NUMBER_ID: '111', WA_TOKEN: 'tok',
-  WA_OWNER_TEMPLATE: 'owner_update', WA_FOLLOWUP_TEMPLATE: 'bbc_followup'
+  WA_OWNER_TEMPLATE: 'owner_update', WA_FOLLOWUP_TEMPLATE: 'bbc_followup', FOLLOWUP_MODE: 'full'
 });
 let sent, brainQueue, brainFails;
 global.fetch = async (url, opts) => {
@@ -230,4 +230,28 @@ test('replying from the Business app pauses the bot for that lead', async () => 
   const before = toLead().length;
   await inbound('thanks!');
   assert.equal(toLead().length, before);
+});
+
+test('free mode: one free-text nudge, never a template, then cold; missed window goes cold without sending', async () => {
+  reset();
+  process.env.FOLLOWUP_MODE = 'free';
+  try {
+    const now = ist(2026, 10, 8, 12, 0);
+    setAt('bbcWA/conversations/A', { waId: 'A', name: 'Ann', status: 'bot', followupCount: 0, lastInboundAt: now - 20 * U.HOUR, nextFollowupAt: now - 1000, profile: {} });
+    setAt('bbcWA/conversations/B', { waId: 'B', name: 'Bob', status: 'bot', followupCount: 0, lastInboundAt: now - 30 * U.HOUR, nextFollowupAt: now - 1000, profile: {} });
+    brainQueue.push({ reply: 'Quick check-in, anything I can clarify?', stage: 'Prospect', lead_type: 'prospect', handoff: false, handoff_reason: 'none', summary: '' });
+    const r = await flow.runFollowups(now);
+    assert.equal(r.sent, 1); assert.equal(r.cold, 1);
+    assert.equal(sent.find(s => s.to === 'A').type, 'text');
+    assert.ok(!sent.find(s => s.to === 'B'));                        // no paid template, nothing sent
+    assert.equal(sent.filter(s => s.type === 'template').length, 0);
+    assert.equal((await flow.getConv('B')).status, 'cold');
+    // after its single nudge, A goes cold on the next due pass
+    const a = await flow.getConv('A');
+    assert.equal(a.followupCount, 1);
+    const later = a.nextFollowupAt + U.HOUR;
+    const r2 = await flow.runFollowups(U.toBusinessTime(later));
+    assert.equal(r2.cold, 1);
+    assert.equal((await flow.getConv('A')).status, 'cold');
+  } finally { process.env.FOLLOWUP_MODE = 'full'; }
 });

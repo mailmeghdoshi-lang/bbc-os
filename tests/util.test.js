@@ -36,14 +36,33 @@ test('toBusinessTime moves night and Sunday times to the next 10:00 IST', () => 
   assert.equal(U.toBusinessTime(ok), ok);
 });
 
-test('follow-up schedule: 24h, 72h, 7d, then cold', () => {
+test('full follow-up schedule: 24h, 72h, 7d, then cold', () => {
   const t0 = ist(2026, 10, 7, 15, 0);                        // Wed 15:00
-  assert.equal(U.nextFollowupAt(0, t0), ist(2026, 10, 8, 15, 0));
-  assert.equal(U.nextFollowupAt(1, t0), ist(2026, 10, 10, 15, 0));  // Sat 15:00 is allowed
-  assert.equal(U.nextFollowupAt(2, t0), ist(2026, 10, 14, 15, 0));
-  assert.equal(U.nextFollowupAt(3, t0), null);
+  assert.equal(U.nextFollowupAt(0, t0, 'full'), ist(2026, 10, 8, 15, 0));
+  assert.equal(U.nextFollowupAt(1, t0, 'full'), ist(2026, 10, 10, 15, 0));  // Sat 15:00 is allowed
+  assert.equal(U.nextFollowupAt(2, t0, 'full'), ist(2026, 10, 14, 15, 0));
+  assert.equal(U.nextFollowupAt(3, t0, 'full'), null);
   // a follow-up that would land on a Sunday evening is pushed to Monday 10:00
-  assert.equal(U.nextFollowupAt(0, ist(2026, 10, 10, 20, 0)), ist(2026, 10, 12, 10, 0));
+  assert.equal(U.nextFollowupAt(0, ist(2026, 10, 10, 20, 0), 'full'), ist(2026, 10, 12, 10, 0));
+});
+
+test('free mode: one nudge at 20h, always inside the free 24h window', () => {
+  assert.equal(U.nextFollowupAt(0, ist(2026, 10, 7, 15, 0), 'free'), ist(2026, 10, 8, 11, 0));  // 15:00 + 20h = 11:00 next day
+  assert.equal(U.nextFollowupAt(1, ist(2026, 10, 7, 15, 0), 'free'), null);                     // only one nudge
+  // lead writes at 23:00 -> +20h = 19:00 (just outside hours) -> pulled back to the last business minute, still < 24h
+  const t = U.nextFollowupAt(0, ist(2026, 10, 7, 23, 0), 'free');
+  assert.ok(U.inBusinessHours(t));
+  assert.ok(t - ist(2026, 10, 7, 23, 0) < 23 * U.HOUR && t - ist(2026, 10, 7, 23, 0) >= 3 * U.HOUR);
+  // lead writes at 05:00 -> +20h = 01:00 -> backward lands 18:59 the previous day (<3h gap) -> falls back to next 10:00
+  const early = U.nextFollowupAt(0, ist(2026, 10, 7, 5, 0), 'free');
+  assert.ok(U.inBusinessHours(early));
+});
+
+test('mode defaults to free unless FOLLOWUP_MODE=full', () => {
+  const saved = process.env.FOLLOWUP_MODE;
+  delete process.env.FOLLOWUP_MODE; assert.equal(U.followupMode(), 'free'); assert.equal(U.maxFollowups(), 1);
+  process.env.FOLLOWUP_MODE = 'full'; assert.equal(U.followupMode(), 'full'); assert.equal(U.maxFollowups(), 3);
+  if (saved === undefined) delete process.env.FOLLOWUP_MODE; else process.env.FOLLOWUP_MODE = saved;
 });
 
 test('24h WhatsApp window', () => {

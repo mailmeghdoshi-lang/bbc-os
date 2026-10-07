@@ -16,7 +16,7 @@ It lives in its own area of the database (`/bbcWA`) and does not touch the exist
 | New lead messages | Replies within seconds, introduces itself as BBC's AI assistant, asks about the business, goal, timeline and (softly) budget |
 | Asks about price, a call, or for Megh | Replies politely, then **hands off**: the bot goes quiet on that chat and Megh gets a WhatsApp ping |
 | Ready to buy / complaint / existing client | Hand-off with the reason |
-| Lead goes quiet | Follow-up at 24h, 3 days and 7 days (10am to 7pm IST, Mon to Sat only). After the third with no reply the lead is marked **cold** |
+| Lead goes quiet | **Free mode (default):** one follow-up at about 20h, inside WhatsApp's free 24h window, then cold. **Full mode** (`FOLLOWUP_MODE=full`): follow-ups at 24h, 3 days and 7 days using a paid template. Always 10am to 7pm IST, Mon to Sat |
 | Lead says STOP / not interested | Confirms once, never messages again |
 | Vendor pitch or job seeker | Short polite reply, closed, no ping |
 | Claude is unavailable | Lead still gets a safe holding reply and Megh is alerted |
@@ -41,10 +41,10 @@ The number is the position in your latest brief or `status` list.
    - Migrating your main number to API-only disables the phone app on it. Avoid this unless you accept that.
 3. Create a **System User** in Business Settings, give it your WhatsApp account, and generate a **permanent token** with `whatsapp_business_messaging` and `whatsapp_business_management`. This is `WA_TOKEN`.
 4. Note the **Phone number ID** (`WA_PHONE_NUMBER_ID`) and the **App Secret** (`WA_APP_SECRET`, App settings > Basic).
-5. Create two **message templates** (WhatsApp only allows free text within 24 hours of the lead's last message, so these cover the rest):
-   - `bbc_owner_update` (category Utility, language English), body: `BBC lead update: {{1}}`
-   - `bbc_followup` (category Marketing or Utility, whichever Meta approves), body: `Hi {{1}}, this is Butter Branding Co. Just checking in on your enquiry. Would you like to continue the conversation? Reply here anytime.`
-   Wait for approval before going live. Without `bbc_followup`, follow-ups after 24h are held back and flagged in your brief.
+5. Create **message templates** (WhatsApp only allows free text within 24 hours of the lead's last message):
+   - `bbc_owner_update` (needed in both modes: it delivers hand-off pings and the morning brief when you haven't messaged the bot that day) (category Utility, language English), body: `BBC lead update: {{1}}`
+   - `bbc_followup` (**full mode only**; skip it in free mode), body: `Hi {{1}}, this is Butter Branding Co. Just checking in on your enquiry. Would you like to continue the conversation? Reply here anytime.`
+   Wait for approval before going live. In full mode, without `bbc_followup`, follow-ups after 24h are held back and flagged in your brief.
 
 ## Step 2. Firebase
 
@@ -70,7 +70,8 @@ The number is the position in your latest brief or `status` list.
 | `WA_VERIFY_TOKEN` | any long random string you choose |
 | `OWNER_WA` | `919769277652` |
 | `WA_OWNER_TEMPLATE` | `bbc_owner_update` |
-| `WA_FOLLOWUP_TEMPLATE` | `bbc_followup` |
+| `FOLLOWUP_MODE` | leave unset for free mode, or `full` |
+| `WA_FOLLOWUP_TEMPLATE` | `bbc_followup` (full mode only) |
 | `CRON_SECRET` | any long random string |
 | `DASHBOARD_PASSWORD` | the password for `/wa.html` |
 
@@ -88,7 +89,7 @@ In Meta > WhatsApp > Configuration:
 
 ## Step 5. Schedules
 
-`vercel.json` runs `/api/cron` daily at 10:00 IST (morning brief + due follow-ups). Vercel's free plan only allows once a day, so for timely follow-ups add a free pinger (cron-job.org) that calls `https://<domain>/api/cron` every hour with the header `Authorization: Bearer <CRON_SECRET>`. The endpoint itself enforces business hours and sends the brief once a day, so extra calls are harmless.
+`vercel.json` runs `/api/cron` daily at 10:00 IST (morning brief + due follow-ups). Vercel's free plan only allows once a day. **In free mode the pinger is required**, because the one free follow-up must go out within the 24h window; add a free pinger (cron-job.org) that calls `https://<domain>/api/cron` every hour with the header `Authorization: Bearer <CRON_SECRET>`. The endpoint itself enforces business hours and sends the brief once a day, so extra calls are harmless.
 
 ## Step 6. Test before real leads
 
@@ -98,7 +99,7 @@ In Meta > WhatsApp > Configuration:
 4. From Megh's phone send `status`. You should get the brief.
 5. Open `/wa.html`, enter the dashboard password, and check the conversations appear.
 
-Run `npm test` in the repo for the automated tests (22 checks of the logic).
+Run `npm test` in the repo for the automated tests (25 checks of the logic).
 
 ## Things to know
 
