@@ -1,0 +1,13 @@
+{
+  "name": "bbc-os",
+  "version": "1.1.0",
+  "private": true,
+  "description": "BBC Agency OS with WhatsApp lead assistant backend (Vercel serverless functions)",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\""
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0"
+  }
+}

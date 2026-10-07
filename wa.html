@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BBC · WhatsApp Leads</title>
+<style>
+  :root{--bg:#F5F4F1;--card:#fff;--ink:#1a1a1a;--mute:#888;--line:#e8e6e1;--purple:#7c3aed;--amber:#f57f17;--red:#c0392b;--green:#2e7d32;--blue:#1565c0}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+  .brand{font-weight:900;font-style:italic;font-size:18px;background:linear-gradient(135deg,#7c3aed,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+  main{max-width:1100px;margin:0 auto;padding:18px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;font-size:13px}
+  .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .tab b{margin-left:6px;opacity:.7}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer}
+  .card:hover{border-color:#cfc9bd}
+  .row{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+  .name{font-weight:600}
+  .co{font-size:12px;color:var(--mute)}
+  .sum{margin:8px 0;font-size:13px;color:#333}
+  .meta{font-size:11px;color:var(--mute);display:flex;gap:10px;flex-wrap:wrap}
+  .badge{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600;white-space:nowrap}
+  .b-red{background:#fdecea;color:var(--red)}.b-amber{background:#fff3e0;color:var(--amber)}.b-green{background:#e8f5e9;color:var(--green)}
+  .b-blue{background:#e3f2fd;color:var(--blue)}.b-purple{background:#f3e8ff;color:#6d28d9}.b-gray{background:#eee;color:#666}
+  .empty{padding:40px;text-align:center;color:var(--mute);background:#fff;border:1px dashed var(--line);border-radius:12px}
+  .login{max-width:340px;margin:12vh auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px;text-align:center}
+  input,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit;margin-top:10px}
+  button{font:inherit;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;cursor:pointer}
+  button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+  button.good{background:#e8f5e9;color:var(--green);border-color:#b2dfdb}
+  button.bad{background:#fdecea;color:var(--red);border-color:#f5c6c0}
+  .drawer{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:10}
+  .drawer.open{display:block}
+  .panel{position:absolute;right:0;top:0;bottom:0;width:min(520px,100%);background:#fff;padding:18px;overflow:auto;display:flex;flex-direction:column;gap:12px}
+  .msgs{display:flex;flex-direction:column;gap:6px;background:var(--bg);border-radius:10px;padding:10px;max-height:42vh;overflow:auto}
+  .m{max-width:85%;padding:7px 10px;border-radius:10px;font-size:13px;white-space:pre-wrap;word-wrap:break-word}
+  .m.in{background:#fff;align-self:flex-start}
+  .m.out{background:#ede7ff;align-self:flex-end}
+  .m.human{background:#dcf8c6}
+  .m small{display:block;color:var(--mute);font-size:10px;margin-top:2px}
+  .kv{display:grid;grid-template-columns:90px 1fr;gap:4px 10px;font-size:13px}
+  .kv span:nth-child(odd){color:var(--mute)}
+  .actions{display:flex;gap:6px;flex-wrap:wrap}
+  #err{color:var(--red);font-size:12px;margin-top:8px;min-height:16px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const REASON = {pricing:'Asked for pricing',call_request:'Wants a call',wants_human:'Asked for you',ready_to_buy:'Ready to proceed',existing_client:'Existing client',complaint:'Unhappy',out_of_scope:'Needs your judgement',qualified:'Qualified',none:'Needs you'};
+let pw = sessionStorage.getItem('bbcwa') || '', DATA = [], NOW = Date.now(), TAB = 'need', OPEN = null, timer;
+
+async function api(body) {
+  const r = await fetch('/api/board', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password: pw, ...body})});
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || 'request failed');
+  return j;
+}
+function ago(ms) {
+  if (!ms) return '—';
+  const m = Math.round((NOW - ms) / 60000);
+  if (m < 60) return m + 'm ago';
+  if (m < 1440) return Math.round(m / 60) + 'h ago';
+  return Math.round(m / 1440) + 'd ago';
+}
+function when(ms) { return ms ? new Date(ms).toLocaleString('en-IN', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : '—'; }
+
+const TABS = {
+  need:   {label:'Needs you',     f: c => c.status === 'handoff' || (c.status === 'human' && c.ownerAttention)},
+  due:    {label:'Follow-ups',    f: c => c.status === 'bot' && c.nextFollowupAt},
+  bot:    {label:'Bot chatting',  f: c => c.status === 'bot'},
+  cold:   {label:'Cold',          f: c => c.status === 'cold'},
+  closed: {label:'Closed',        f: c => c.status === 'closed' || c.status === 'optout'}
+};
+
+function login(msg) {
+  $('#app').innerHTML = `<div class="login"><div class="brand">Butter Branding Co</div><div class="sub">WhatsApp lead desk</div>
+    <input id="pw" type="password" placeholder="Dashboard password" autofocus><button class="primary" style="width:100%;margin-top:12px" onclick="doLogin()">Open</button><div id="err">${esc(msg || '')}</div></div>`;
+  $('#pw').addEventListener('keydown', e => e.key === 'Enter' && doLogin());
+}
+async function doLogin() { pw = $('#pw').value; sessionStorage.setItem('bbcwa', pw); await load(true); }
+
+async function load(first) {
+  try {
+    const j = await api({action:'list'});
+    DATA = j.conversations || []; NOW = j.now;
+    render();
+    clearInterval(timer); timer = setInterval(() => load(), 30000);
+  } catch (e) {
+    if (first || /password/.test(e.message)) { sessionStorage.removeItem('bbcwa'); login(e.message); } else console.error(e);
+  }
+}
+
+function badgeFor(c) {
+  if (c.status === 'handoff') return `<span class="badge b-red">${esc(REASON[(c.handoff||{}).reason] || 'Needs you')}</span>`;
+  if (c.status === 'human') return `<span class="badge b-amber">You're handling · they wrote</span>`;
+  if (c.status === 'bot') return `<span class="badge b-blue">Bot · follow-up ${(c.followupCount||0)+1 > 3 ? 'done' : '#' + ((c.followupCount||0)+1)} ${c.nextFollowupAt ? 'on ' + when(c.nextFollowupAt) : ''}</span>`;
+  if (c.status === 'cold') return `<span class="badge b-gray">Cold</span>`;
+  if (c.status === 'optout') return `<span class="badge b-gray">Opted out</span>`;
+  return `<span class="badge ${c.closedReason === 'won' ? 'b-green' : 'b-gray'}">${esc(c.closedReason || 'closed')}</span>`;
+}
+
+function render() {
+  const counts = Object.fromEntries(Object.entries(TABS).map(([k, t]) => [k, DATA.filter(t.f).length]));
+  const list = DATA.filter(TABS[TAB].f).sort((a, b) => (b.lastInboundAt || 0) - (a.lastInboundAt || 0));
+  $('#app').innerHTML = `
+    <header><div><div class="brand">Butter Branding Co</div><div class="sub">WhatsApp lead desk</div></div><button onclick="load()">Refresh</button></header>
+    <main>
+      <div class="tabs">${Object.entries(TABS).map(([k, t]) => `<div class="tab ${k === TAB ? 'on' : ''}" onclick="TAB='${k}';render()">${t.label}<b>${counts[k]}</b></div>`).join('')}</div>
+      ${list.length ? `<div class="grid">${list.map(card).join('')}</div>` : `<div class="empty">Nothing here right now.</div>`}
+    </main>
+    <div class="drawer" id="drawer" onclick="if(event.target.id==='drawer')closeDrawer()"><div class="panel" id="panel"></div></div>`;
+}
+
+function card(c) {
+  const p = c.profile || {};
+  return `<div class="card" onclick="openLead('${esc(c.waId)}')">
+    <div class="row"><div><div class="name">${esc(c.name || '+' + c.waId)}</div><div class="co">${esc(p.company || '')}${p.city ? ' · ' + esc(p.city) : ''}</div></div>${badgeFor(c)}</div>
+    <div class="sum">${esc(c.summary || 'No summary yet')}</div>
+    <div class="meta"><span>Last msg ${ago(c.lastInboundAt)}</span><span>${esc(c.stage || 'Prospect')}</span><span>+${esc(c.waId)}</span></div></div>`;
+}
+
+async function openLead(waId) {
+  $('#drawer').classList.add('open');
+  $('#panel').innerHTML = '<div class="empty">Loading…</div>';
+  try {
+    const {conversation: c, messages} = await api({action:'thread', waId});
+    OPEN = c;
+    const p = c.profile || {};
+    $('#panel').innerHTML = `
+      <div class="row"><div><div class="name" style="font-size:17px">${esc(c.name || '+' + c.waId)}</div><div class="co">+${esc(c.waId)}</div></div><button onclick="closeDrawer()">✕</button></div>
+      ${badgeFor(c)}
+      <div class="kv"><span>Summary</span><span>${esc(c.summary || '—')}</span><span>Business</span><span>${esc(p.company || '—')}</span><span>City</span><span>${esc(p.city || '—')}</span>
+        <span>Needs</span><span>${esc([p.goal, (p.services||[]).join(', ')].filter(Boolean).join(' / ') || '—')}</span><span>Budget</span><span>${esc(p.budget || '—')}</span><span>Timeline</span><span>${esc(p.timeline || '—')}</span><span>Stage</span><span>${esc(c.stage || '—')}</span></div>
+      <div class="msgs" id="msgs">${messages.map(m => `<div class="m ${m.dir === 'in' ? 'in' : 'out'} ${m.source === 'human' ? 'human' : ''}">${esc(m.text)}<small>${m.dir === 'in' ? 'Lead' : m.source === 'human' ? 'You' : 'Bot'} · ${when(m.ts)}</small></div>`).join('')}</div>
+      <div class="actions">
+        <button onclick="act('pause')">Pause bot (I'll handle)</button><button onclick="act('resume')">Hand back to bot</button>
+        <button class="good" onclick="act('won')">Won</button><button class="bad" onclick="act('lost')">Lost</button><button onclick="act('done')">Mark handled</button>
+      </div>
+      <div><textarea id="reply" rows="3" placeholder="Reply as yourself (works within 24h of their last message)…"></textarea>
+        <div class="actions" style="margin-top:8px"><button class="primary" onclick="send()">Send via WhatsApp</button><button onclick="copyLead()">Copy for Lead Master</button></div><div id="err"></div></div>`;
+    const m = $('#msgs'); m.scrollTop = m.scrollHeight;
+  } catch (e) { $('#panel').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+function closeDrawer() { $('#drawer').classList.remove('open'); OPEN = null; }
+async function act(a) { try { await api({action:'act', waId: OPEN.waId, act: a}); closeDrawer(); await load(); } catch (e) { $('#err').textContent = e.message; } }
+async function send() {
+  const text = $('#reply').value.trim(); if (!text) return;
+  try { await api({action:'send', waId: OPEN.waId, text}); await openLead(OPEN.waId); load(); } catch (e) { $('#err').textContent = e.message; }
+}
+function copyLead() {
+  const c = OPEN, p = c.profile || {};
+  const t = `Lead: ${c.name || ''} ${p.company ? '— ' + p.company : ''}\nPhone: +${c.waId}\nServices: ${(p.services || []).join(', ')}\nNotes: ${[c.summary, p.goal && 'Goal: ' + p.goal, p.budget && 'Budget: ' + p.budget, p.timeline && 'Timeline: ' + p.timeline].filter(Boolean).join(' | ')}`;
+  navigator.clipboard.writeText(t).then(() => { $('#err').style.color = '#2e7d32'; $('#err').textContent = 'Copied. Paste into a new lead in Lead Master.'; });
+}
+
+pw ? load(true) : login();
+</script>
+</body>
+</html>
